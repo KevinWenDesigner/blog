@@ -1,0 +1,18 @@
+name = "blog-decap-oauth"
+main = "src/index.ts"
+compatibility_date = "2026-04-17"
+
+# For a custom domain, uncomment and edit:
+# workers_dev = false
+# route = { pattern = "decap.example.com", zone_name = "example.com", custom_domain = true }
+
+[vars]
+# Comma-separated GitHub logins allowed to publish through /admin/.
+ALLOWED_GITHUB_USERS = "your-github-login"
+
+# public_repo is enough for public repositories. Use "repo,user" for private repositories.
+GITHUB_OAUTH_SCOPE = "public_repo,user"
+
+# Store these as Wrangler secrets, not plain vars:
+# npx wrangler secret put GITHUB_OAUTH_ID
+# npx wrangler secret put GITHUB_OAUTH_SECRET

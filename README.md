@@ -7,6 +7,8 @@
 - Markdown 技术笔记、代码高亮、标签、分类、归档
 - 站内搜索（Pagefind，构建后生成静态索引）
 - 文章目录、阅读时间、更新日期、相关文章、较新/较早文章导航
+- 浏览器写作后台（Decap CMS + GitHub OAuth 白名单）
+- GitHub Discussions 评论（Giscus，可按文章关闭）
 - RSS、sitemap、GitHub Pages 自动部署
 
 ## 本地运行
@@ -32,6 +34,7 @@ category: 笔记
 tags: [Astro, Tailwind] # 可选
 keywords: [CI, 部署]    # 可选；补充搜索关键词
 draft: false           # 可选；true 时不会出现在列表 / RSS / sitemap
+comments: true         # 可选；false 时关闭该文章评论
 ---
 ```
 
@@ -54,6 +57,35 @@ npm run build
    - `BASE_PATH=/<repo>/`
 
 本地验证 RSS、sitemap 或搜索结果链接前，请先设置 `.env`，否则默认会使用 `https://example.invalid`。
+
+## 浏览器写作后台
+
+后台入口是 `/admin/`。它使用 Decap CMS 直接编辑 `src/content/blog/` 中的 Markdown，并通过 GitHub commit 触发 Actions 发布。
+
+需要配置：
+
+```bash
+ADMIN_GITHUB_REPO=<user>/<repo>
+ADMIN_BRANCH=main
+ADMIN_OAUTH_BASE_URL=https://decap-oauth.example.com
+ADMIN_AUTH_ENDPOINT=/auth
+ADMIN_CATEGORIES=笔记,工程化,教程,踩坑,读书
+```
+
+OAuth 代理部署说明见 `docs/admin-publishing.md`。不要把 GitHub token、OAuth client secret 或 Cloudflare secrets 提交进仓库。
+
+## 评论功能
+
+评论使用 Giscus + GitHub Discussions。配置仓库 Discussions、安装 Giscus App 后，把 https://giscus.app/ 生成的值写入：
+
+```bash
+PUBLIC_GISCUS_REPO=<user>/<repo>
+PUBLIC_GISCUS_REPO_ID=...
+PUBLIC_GISCUS_CATEGORY=Comments
+PUBLIC_GISCUS_CATEGORY_ID=...
+```
+
+缺少任一必填值时，评论区不会渲染。单篇文章可用 `comments: false` 关闭评论。
 
 ## 部署（GitHub Actions）
 

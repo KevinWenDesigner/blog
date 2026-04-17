@@ -24,5 +24,9 @@ export default defineConfig({
     }
   },
 
-  integrations: [sitemap()]
+  integrations: [
+    sitemap({
+      filter: (page) => !new URL(page).pathname.includes('/admin/')
+    })
+  ]
 });

@@ -2,6 +2,7 @@
 import PostNav from '../../components/PostNav.astro';
 import RelatedPosts from '../../components/RelatedPosts.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
+import Comments from '../../components/Comments.astro';
 import Layout from '../../layouts/Layout.astro';
 import { render } from 'astro:content';
 import { getPublishedBlogPosts } from '../../lib/astroPosts';
@@ -62,4 +63,5 @@ const relatedPosts = getRelatedPosts(posts, post);
   </article>
   <RelatedPosts posts={relatedPosts} />
   <PostNav newer={newer} older={older} />
+  {post.data.comments ? <Comments /> : null}
 </Layout>

@@ -34,6 +34,17 @@ jobs:
         env:
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
           BASE_PATH: /${{ github.event.repository.name }}/
+          ADMIN_GITHUB_REPO: ${{ github.repository }}
+          ADMIN_BRANCH: ${{ github.event.repository.default_branch }}
+          ADMIN_OAUTH_BASE_URL: ${{ vars.ADMIN_OAUTH_BASE_URL }}
+          ADMIN_AUTH_ENDPOINT: /auth
+          ADMIN_CATEGORIES: ${{ vars.ADMIN_CATEGORIES }}
+          PUBLIC_GISCUS_REPO: ${{ vars.PUBLIC_GISCUS_REPO }}
+          PUBLIC_GISCUS_REPO_ID: ${{ vars.PUBLIC_GISCUS_REPO_ID }}
+          PUBLIC_GISCUS_CATEGORY: ${{ vars.PUBLIC_GISCUS_CATEGORY }}
+          PUBLIC_GISCUS_CATEGORY_ID: ${{ vars.PUBLIC_GISCUS_CATEGORY_ID }}
+          PUBLIC_GISCUS_MAPPING: pathname
+          PUBLIC_GISCUS_LANG: zh-CN
         run: npm run build
 
       - name: Upload Pages artifact

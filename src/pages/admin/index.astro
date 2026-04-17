@@ -1,0 +1,16 @@
+---
+const cmsScript = import.meta.env.PUBLIC_DECAP_CMS_SRC_URL ?? 'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <title>文章后台</title>
+  </head>
+  <body>
+    <script src={cmsScript}></script>
+  </body>
+</html>

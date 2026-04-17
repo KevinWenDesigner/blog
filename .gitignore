@@ -19,6 +19,11 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# Cloudflare Worker local state and secrets
+.wrangler/
+admin-oauth-worker/wrangler.toml
+admin-oauth-worker/.dev.vars
+
 # macOS-specific files
 .DS_Store
 

@@ -1,0 +1,43 @@
+---
+import { getGiscusConfig } from '../lib/comments';
+
+const config = getGiscusConfig({
+  repo: import.meta.env.PUBLIC_GISCUS_REPO,
+  repoId: import.meta.env.PUBLIC_GISCUS_REPO_ID,
+  category: import.meta.env.PUBLIC_GISCUS_CATEGORY,
+  categoryId: import.meta.env.PUBLIC_GISCUS_CATEGORY_ID,
+  mapping: import.meta.env.PUBLIC_GISCUS_MAPPING,
+  strict: import.meta.env.PUBLIC_GISCUS_STRICT,
+  reactionsEnabled: import.meta.env.PUBLIC_GISCUS_REACTIONS_ENABLED,
+  emitMetadata: import.meta.env.PUBLIC_GISCUS_EMIT_METADATA,
+  inputPosition: import.meta.env.PUBLIC_GISCUS_INPUT_POSITION,
+  theme: import.meta.env.PUBLIC_GISCUS_THEME,
+  lang: import.meta.env.PUBLIC_GISCUS_LANG,
+  loading: import.meta.env.PUBLIC_GISCUS_LOADING
+});
+---
+
+{config ? (
+  <section class="mt-12 border-t border-slate-200 pt-8" aria-label="评论">
+    <h2 class="text-lg font-semibold tracking-tight">评论</h2>
+    <div class="mt-4">
+      <script
+        src="https://giscus.app/client.js"
+        data-repo={config.repo}
+        data-repo-id={config.repoId}
+        data-category={config.category}
+        data-category-id={config.categoryId}
+        data-mapping={config.mapping}
+        data-strict={config.strict}
+        data-reactions-enabled={config.reactionsEnabled}
+        data-emit-metadata={config.emitMetadata}
+        data-input-position={config.inputPosition}
+        data-theme={config.theme}
+        data-lang={config.lang}
+        data-loading={config.loading}
+        crossorigin="anonymous"
+        async
+      ></script>
+    </div>
+  </section>
+) : null}
