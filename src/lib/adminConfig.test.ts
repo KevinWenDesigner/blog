@@ -17,7 +17,7 @@ describe('buildAdminConfig', () => {
     expect(config).toContain('repo: owner/blog');
     expect(config).toContain('branch: main');
     expect(config).toContain('base_url: https://decap.example.com');
-    expect(config).toContain('auth_endpoint: /auth');
+    expect(config).toContain('auth_endpoint: auth');
     expect(config).toContain('site_url: https://owner.github.io/blog/');
   });
 

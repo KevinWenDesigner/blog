@@ -51,7 +51,7 @@ export function buildAdminConfig(input: AdminConfigInput): string {
   const githubRepo = input.githubRepo?.trim() || 'REPLACE_WITH_OWNER/REPLACE_WITH_REPO';
   const branch = input.branch?.trim() || 'main';
   const oauthBaseUrl = input.oauthBaseUrl?.replace(/\/+$/, '') || 'https://decap-oauth.example.invalid';
-  const authEndpoint = input.authEndpoint?.trim() || '/auth';
+  const authEndpoint = input.authEndpoint?.trim() || 'auth';
   const publicFolder = `${basePath}uploads`;
   const siteUrl = normalizeSiteUrl(input.siteUrl, basePath);
   const categories = input.categories?.length ? input.categories : DEFAULT_CATEGORIES;

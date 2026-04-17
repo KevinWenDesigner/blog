@@ -28,7 +28,7 @@ BASE_PATH=/<repo>/
 ADMIN_GITHUB_REPO=<user>/<repo>
 ADMIN_BRANCH=main
 ADMIN_OAUTH_BASE_URL=https://decap.example.com
-ADMIN_AUTH_ENDPOINT=/auth
+ADMIN_AUTH_ENDPOINT=auth
 ADMIN_CATEGORIES=笔记,工程化,教程,踩坑,读书
 ```
 
