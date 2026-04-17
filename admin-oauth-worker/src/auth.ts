@@ -122,8 +122,13 @@ export function buildCallbackHtml(status: 'success' | 'error', payload: Record<s
       const message = ${JSON.stringify(message)};
       const fallbackText = ${JSON.stringify(fallbackText)};
       if (window.opener && typeof window.opener.postMessage === "function") {
-        window.opener.postMessage(message, "*");
-        window.close();
+        const receiveMessage = () => {
+          window.opener.postMessage(message, "*");
+          window.removeEventListener("message", receiveMessage, false);
+          window.close();
+        };
+        window.addEventListener("message", receiveMessage, false);
+        window.opener.postMessage("authorizing:github", "*");
       } else {
         document.getElementById("status").textContent = fallbackText;
       }

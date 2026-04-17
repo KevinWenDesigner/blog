@@ -38,12 +38,16 @@ describe('admin OAuth helpers', () => {
     await expect(verifySignedState(state ?? '', 'wrong-secret')).resolves.toBe(false);
   });
 
-  it('posts the Decap CMS authorization message back to the opener', () => {
+  it('uses Decap CMS OAuth popup handshake before posting the final authorization result', () => {
     const html = buildCallbackHtml('success', { token: 'gho_token' });
 
     expect(html).toContain('authorization:github:success:');
+    expect(html).toContain('authorizing:github');
     expect(html).toContain('\\"token\\":\\"gho_token\\"');
-    expect(html).toContain('window.opener.postMessage');
+    expect(html).toContain('window.addEventListener("message", receiveMessage, false)');
+    expect(html.indexOf('window.addEventListener("message", receiveMessage, false)')).toBeLessThan(
+      html.indexOf('authorizing:github')
+    );
   });
 
   it('shows the OAuth result instead of throwing when callback is opened without an opener', () => {
