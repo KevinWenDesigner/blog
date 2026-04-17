@@ -52,3 +52,5 @@ npm run build
 - Settings → Pages → Source 选择 **GitHub Actions**
 - 默认分支建议使用 `main`
 
+
+[Test] Git Hook Automation - 2026-04-17
