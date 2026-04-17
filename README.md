@@ -38,6 +38,14 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## 🌐 Project Pages placeholders
+
+The Astro config reads `SITE_URL` and `BASE_PATH` from environment variables so this project can be deployed to GitHub Project Pages once the repository exists.
+
+1. Copy `.env.example` to `.env`.
+2. Set `SITE_URL` to `https://<user>.github.io`.
+3. Set `BASE_PATH` to `/<repo>/` for project pages (or `/` for user/org pages).
+
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
