@@ -18,7 +18,7 @@ const tags = [...byTag.entries()]
     {tags.map(({ tag, count }) => (
       <a
         class="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm hover:bg-slate-50"
-        href={`/tags/${encodeURIComponent(tag)}/`}
+        href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}/`}
       >
         {tag}
         <span class="ml-2 text-xs text-slate-500">({count})</span>

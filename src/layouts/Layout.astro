@@ -13,7 +13,7 @@ const { title = '技术笔记', description } = Astro.props as Props;
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     {description ? <meta name="description" content={description} /> : null}
@@ -22,14 +22,14 @@ const { title = '技术笔记', description } = Astro.props as Props;
   <body class="min-h-dvh bg-white text-slate-900 antialiased">
     <main class="mx-auto w-full max-w-3xl px-4 py-12">
       <header class="mb-10 flex items-center justify-between">
-        <a href="/" class="text-base font-semibold tracking-tight">
+        <a href={import.meta.env.BASE_URL} class="text-base font-semibold tracking-tight">
           技术笔记
         </a>
         <nav class="flex items-center gap-4 text-sm text-slate-600">
-          <a class="hover:text-slate-900" href="/blog">文章</a>
-          <a class="hover:text-slate-900" href="/tags">标签</a>
-          <a class="hover:text-slate-900" href="/categories">分类</a>
-          <a class="hover:text-slate-900" href="/archive">归档</a>
+          <a class="hover:text-slate-900" href={`${import.meta.env.BASE_URL}blog/`}>文章</a>
+          <a class="hover:text-slate-900" href={`${import.meta.env.BASE_URL}tags/`}>标签</a>
+          <a class="hover:text-slate-900" href={`${import.meta.env.BASE_URL}categories/`}>分类</a>
+          <a class="hover:text-slate-900" href={`${import.meta.env.BASE_URL}archive/`}>归档</a>
         </nav>
       </header>
       <slot />

@@ -21,7 +21,7 @@ const groups = [...byYm.entries()]
         <ul class="mt-3 space-y-2 text-sm">
           {items.map((post) => (
             <li class="flex items-baseline justify-between gap-4">
-              <a class="hover:underline" href={`/blog/${post.id}/`}>{post.data.title}</a>
+              <a class="hover:underline" href={`${import.meta.env.BASE_URL}blog/${post.id}/`}>{post.data.title}</a>
               <time class="shrink-0 text-xs text-slate-500" datetime={post.data.pubDate.toISOString()}>
                 {new Intl.DateTimeFormat('zh-CN', { dateStyle: 'short' }).format(post.data.pubDate)}
               </time>
