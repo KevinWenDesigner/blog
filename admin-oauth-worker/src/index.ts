@@ -1,4 +1,4 @@
-import { OAUTH_STATE_COOKIE, buildAuthorizeUrl, buildCallbackHtml, buildStateCookie, isAllowedUser, readCookieValue } from './auth';
+import { buildAuthorizeUrl, buildCallbackHtml, isAllowedUser, verifySignedState } from './auth';
 
 type Env = {
   GITHUB_OAUTH_ID: string;
@@ -90,17 +90,16 @@ async function handleAuth(requestUrl: URL, env: Env): Promise<Response> {
     return new Response('Invalid provider', { status: 400 });
   }
 
-  const authorizeUrl = buildAuthorizeUrl(requestUrl, {
+  const authorizeUrl = await buildAuthorizeUrl(requestUrl, {
     clientId: env.GITHUB_OAUTH_ID,
-    scope: env.GITHUB_OAUTH_SCOPE
+    scope: env.GITHUB_OAUTH_SCOPE,
+    stateSecret: env.GITHUB_OAUTH_SECRET
   });
-  const state = authorizeUrl.searchParams.get('state');
 
   return new Response(null, {
     status: 302,
     headers: {
-      Location: authorizeUrl.toString(),
-      ...(state ? { 'Set-Cookie': buildStateCookie(state) } : {})
+      Location: authorizeUrl.toString()
     }
   });
 }
@@ -111,9 +110,8 @@ async function handleCallback(request: Request, requestUrl: URL, env: Env): Prom
     return errorHtml('Missing GitHub OAuth code');
   }
 
-  const expectedState = readCookieValue(request.headers.get('Cookie'), OAUTH_STATE_COOKIE);
   const actualState = requestUrl.searchParams.get('state');
-  if (!expectedState || !actualState || expectedState !== actualState) {
+  if (!actualState || !(await verifySignedState(actualState, env.GITHUB_OAUTH_SECRET))) {
     return errorHtml('Invalid GitHub OAuth state');
   }
 

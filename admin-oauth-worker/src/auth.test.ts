@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   buildAuthorizeUrl,
   buildCallbackHtml,
-  buildStateCookie,
+  createSignedState,
+  verifySignedState,
   isAllowedUser,
-  parseAllowedUsers,
-  readCookieValue
+  parseAllowedUsers
 } from './auth';
 
 describe('admin OAuth helpers', () => {
@@ -19,10 +19,11 @@ describe('admin OAuth helpers', () => {
     expect(isAllowedUser('mallory', 'kevin,alice')).toBe(false);
   });
 
-  it('builds a GitHub authorize URL for the worker callback path', () => {
-    const url = buildAuthorizeUrl(new URL('https://auth.example.com/auth?provider=github'), {
+  it('builds a GitHub authorize URL with a self-verifying OAuth state', async () => {
+    const url = await buildAuthorizeUrl(new URL('https://auth.example.com/auth?provider=github'), {
       clientId: 'client-id',
-      scope: 'public_repo,user'
+      scope: 'public_repo,user',
+      stateSecret: 'github-secret'
     });
 
     expect(url.origin).toBe('https://github.com');
@@ -30,7 +31,11 @@ describe('admin OAuth helpers', () => {
     expect(url.searchParams.get('client_id')).toBe('client-id');
     expect(url.searchParams.get('redirect_uri')).toBe('https://auth.example.com/callback?provider=github');
     expect(url.searchParams.get('scope')).toBe('public_repo,user');
-    expect(url.searchParams.get('state')).toHaveLength(16);
+
+    const state = url.searchParams.get('state');
+    expect(state).toBeTruthy();
+    await expect(verifySignedState(state ?? '', 'github-secret')).resolves.toBe(true);
+    await expect(verifySignedState(state ?? '', 'wrong-secret')).resolves.toBe(false);
   });
 
   it('posts the Decap CMS authorization message back to the opener', () => {
@@ -41,14 +46,16 @@ describe('admin OAuth helpers', () => {
     expect(html).toContain('window.opener.postMessage');
   });
 
-  it('builds and reads the OAuth state cookie used to verify callbacks', () => {
-    const cookie = buildStateCookie('state-123');
+  it('shows the OAuth result instead of throwing when callback is opened without an opener', () => {
+    const html = buildCallbackHtml('error', { error: 'Invalid GitHub OAuth state' });
 
-    expect(cookie).toContain('decap_oauth_state=state-123');
-    expect(cookie).toContain('HttpOnly');
-    expect(cookie).toContain('Secure');
-    expect(readCookieValue('theme=light; decap_oauth_state=state-123; other=1', 'decap_oauth_state')).toBe(
-      'state-123'
-    );
+    expect(html).toContain('window.opener && typeof window.opener.postMessage === "function"');
+    expect(html).toContain('Authorization failed: Invalid GitHub OAuth state');
+  });
+
+  it('rejects expired signed OAuth states', async () => {
+    const state = await createSignedState('github-secret', 1_000);
+
+    await expect(verifySignedState(state, 'github-secret', 1_000 + 10 * 60 * 1000 + 1)).resolves.toBe(false);
   });
 });
