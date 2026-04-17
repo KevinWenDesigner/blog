@@ -44,6 +44,7 @@ jobs:
           PUBLIC_GISCUS_CATEGORY: ${{ vars.PUBLIC_GISCUS_CATEGORY }}
           PUBLIC_GISCUS_CATEGORY_ID: ${{ vars.PUBLIC_GISCUS_CATEGORY_ID }}
           PUBLIC_GISCUS_MAPPING: pathname
+          PUBLIC_GISCUS_THEME: light
           PUBLIC_GISCUS_LANG: zh-CN
         run: npm run build
 

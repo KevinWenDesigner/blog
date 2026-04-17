@@ -53,7 +53,7 @@ export function getGiscusConfig(input: GiscusInput): GiscusConfig | null {
     reactionsEnabled: clean(input.reactionsEnabled) ?? '1',
     emitMetadata: clean(input.emitMetadata) ?? '0',
     inputPosition: clean(input.inputPosition) ?? 'bottom',
-    theme: clean(input.theme) ?? 'preferred_color_scheme',
+    theme: clean(input.theme) ?? 'light',
     lang: clean(input.lang) ?? 'zh-CN',
     loading: clean(input.loading) ?? 'lazy'
   };

@@ -83,6 +83,7 @@ PUBLIC_GISCUS_REPO=<user>/<repo>
 PUBLIC_GISCUS_REPO_ID=...
 PUBLIC_GISCUS_CATEGORY=Comments
 PUBLIC_GISCUS_CATEGORY_ID=...
+PUBLIC_GISCUS_THEME=light
 ```
 
 缺少任一必填值时，评论区不会渲染。单篇文章可用 `comments: false` 关闭评论。
