@@ -1,29 +1,49 @@
 ---
+import PostNav from '../../components/PostNav.astro';
+import RelatedPosts from '../../components/RelatedPosts.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
 import Layout from '../../layouts/Layout.astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getPublishedBlogPosts } from '../../lib/astroPosts';
+import { getAdjacentPosts, getReadingMinutes, getRelatedPosts } from '../../lib/posts';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => data.draft !== true);
+  const posts = await getPublishedBlogPosts();
   return posts.map((post) => ({
     params: { id: post.id },
-    props: { post }
+    props: { post, posts }
   }));
 }
 
-const { post } = Astro.props as {
-  post: Awaited<ReturnType<typeof getCollection>>[number];
+const { post, posts } = Astro.props as {
+  post: Awaited<ReturnType<typeof getPublishedBlogPosts>>[number];
+  posts: Awaited<ReturnType<typeof getPublishedBlogPosts>>;
 };
 
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const dateLabel = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' }).format(post.data.pubDate);
+const updatedLabel = post.data.updatedDate
+  ? new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' }).format(post.data.updatedDate)
+  : undefined;
+const readingMinutes = getReadingMinutes(post.body);
+const { newer, older } = getAdjacentPosts(posts, post.id);
+const relatedPosts = getRelatedPosts(posts, post);
 ---
 
 <Layout title={post.data.title} description={post.data.description}>
-  <article class="leading-relaxed">
+  <article class="leading-relaxed" data-pagefind-body>
     <header class="mb-8">
       <h1 class="text-3xl font-semibold tracking-tight">{post.data.title}</h1>
       <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
         <time datetime={post.data.pubDate.toISOString()}>{dateLabel}</time>
+        <span class="text-slate-300">·</span>
+        <span>{readingMinutes} 分钟阅读</span>
+        {updatedLabel ? (
+          <>
+            <span class="text-slate-300">·</span>
+            <time datetime={post.data.updatedDate?.toISOString()}>更新于 {updatedLabel}</time>
+          </>
+        ) : null}
         <span class="text-slate-300">·</span>
         <a class="hover:underline" href={`${import.meta.env.BASE_URL}categories/${encodeURIComponent(post.data.category)}/`}>
           {post.data.category}
@@ -32,9 +52,14 @@ const dateLabel = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' }).format
           <a class="hover:underline" href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}/`}>#{tag}</a>
         ))}
       </div>
+      {post.data.keywords.length > 0 ? <p class="sr-only">关键词：{post.data.keywords.join('，')}</p> : null}
     </header>
 
-    <Content />
+    <TableOfContents headings={headings} />
+    <div class="article-body">
+      <Content />
+    </div>
   </article>
+  <RelatedPosts posts={relatedPosts} />
+  <PostNav newer={newer} older={older} />
 </Layout>
-

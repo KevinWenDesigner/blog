@@ -2,8 +2,10 @@
 title: "体验极致：自动化部署的魅力"
 description: "这是一篇系统自动生成的演示文章。通过 Git Hook 和 GitHub Actions 实现了提交即上线的完整自动化工作流。"
 pubDate: 2026-04-17
+updatedDate: 2026-04-17
 category: "工程化"
 tags: ["DevOps", "Astro", "自动化"]
+keywords: ["GitHub Actions", "CI", "部署"]
 draft: false
 ---
 

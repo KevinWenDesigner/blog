@@ -1,1 +1,78 @@
 @import "tailwindcss";
+
+:root {
+  --pagefind-ui-primary: #334155;
+  --pagefind-ui-text: #0f172a;
+  --pagefind-ui-background: #ffffff;
+  --pagefind-ui-border: #cbd5e1;
+  --pagefind-ui-tag: #f1f5f9;
+  --pagefind-ui-border-radius: 8px;
+  --pagefind-ui-image-border-radius: 8px;
+  --pagefind-ui-font: ui-sans-serif, system-ui, sans-serif;
+}
+
+.article-body {
+  color: #0f172a;
+}
+
+.article-body h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.article-body h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.article-body p,
+.article-body ul,
+.article-body ol,
+.article-body blockquote {
+  margin-top: 1rem;
+}
+
+.article-body ul,
+.article-body ol {
+  padding-left: 1.5rem;
+}
+
+.article-body ul {
+  list-style: disc;
+}
+
+.article-body ol {
+  list-style: decimal;
+}
+
+.article-body a {
+  color: #334155;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.article-body pre {
+  margin-top: 1.25rem;
+  overflow-x: auto;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.article-body :not(pre) > code {
+  border-radius: 4px;
+  background: #f1f5f9;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.925em;
+}
+
+.article-body blockquote {
+  border-left: 3px solid #cbd5e1;
+  padding-left: 1rem;
+  color: #475569;
+}

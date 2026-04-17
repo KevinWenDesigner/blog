@@ -12,17 +12,20 @@ const categories = [...byCategory.entries()]
 
 <Layout title="分类">
   <h1 class="text-3xl font-semibold tracking-tight">分类</h1>
-  <p class="mt-3 text-slate-600">按分类浏览文章。</p>
+  <p class="mt-3 text-slate-600">按分类浏览文章，共 {categories.length} 个分类。</p>
 
-  <div class="mt-10 grid gap-3">
-    {categories.map(({ category, count }) => (
-      <a class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:bg-slate-50" href={`${import.meta.env.BASE_URL}categories/${encodeURIComponent(category)}/`}>
-        <div class="flex items-baseline justify-between gap-4">
-          <span class="text-base font-semibold">{category}</span>
-          <span class="text-sm text-slate-500">{count} 篇</span>
-        </div>
-      </a>
-    ))}
-  </div>
+  {categories.length > 0 ? (
+    <div class="mt-10 grid gap-3">
+      {categories.map(({ category, count }) => (
+        <a class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:bg-slate-50" href={`${import.meta.env.BASE_URL}categories/${encodeURIComponent(category)}/`}>
+          <div class="flex items-baseline justify-between gap-4">
+            <span class="text-base font-semibold">{category}</span>
+            <span class="text-sm text-slate-500">{count} 篇</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  ) : (
+    <p class="mt-10 rounded-lg border border-slate-200 p-4 text-sm text-slate-600">还没有可浏览的分类。</p>
+  )}
 </Layout>
-

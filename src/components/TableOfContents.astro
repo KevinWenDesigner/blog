@@ -1,0 +1,29 @@
+---
+type Heading = {
+  depth: number;
+  slug: string;
+  text: string;
+};
+
+type Props = {
+  headings: Heading[];
+};
+
+const { headings } = Astro.props as Props;
+const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
+---
+
+{visibleHeadings.length > 2 ? (
+  <aside class="mb-8 rounded-lg border border-slate-200 bg-slate-50 p-4">
+    <h2 class="text-sm font-semibold text-slate-900">目录</h2>
+    <ol class="mt-3 space-y-2 text-sm text-slate-600">
+      {visibleHeadings.map((heading) => (
+        <li class={heading.depth === 3 ? 'pl-4' : undefined}>
+          <a class="hover:text-slate-950 hover:underline" href={`#${heading.slug}`}>
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </aside>
+) : null}

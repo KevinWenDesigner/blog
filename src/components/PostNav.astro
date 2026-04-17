@@ -1,0 +1,29 @@
+---
+import type { BlogPost } from '../lib/astroPosts';
+
+type Props = {
+  newer?: BlogPost;
+  older?: BlogPost;
+};
+
+const { newer, older } = Astro.props as Props;
+---
+
+{newer || older ? (
+  <nav class="mt-12 grid gap-3 border-t border-slate-200 pt-8 sm:grid-cols-2" aria-label="文章导航">
+    {newer ? (
+      <a class="rounded-lg border border-slate-200 p-4 hover:bg-slate-50" href={`${import.meta.env.BASE_URL}blog/${newer.id}/`}>
+        <span class="text-xs text-slate-500">较新一篇</span>
+        <span class="mt-1 block font-medium text-slate-900">{newer.data.title}</span>
+      </a>
+    ) : (
+      <div></div>
+    )}
+    {older ? (
+      <a class="rounded-lg border border-slate-200 p-4 text-left hover:bg-slate-50 sm:text-right" href={`${import.meta.env.BASE_URL}blog/${older.id}/`}>
+        <span class="text-xs text-slate-500">较早一篇</span>
+        <span class="mt-1 block font-medium text-slate-900">{older.data.title}</span>
+      </a>
+    ) : null}
+  </nav>
+) : null}
