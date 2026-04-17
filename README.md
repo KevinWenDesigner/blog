@@ -1,51 +1,54 @@
-# Astro Starter Kit: Minimal
+# 个人技术笔记（Astro + GitHub Pages）
 
-```sh
-npm create astro@latest -- --template minimal
+本项目是一个 **静态技术博客**：本地写 Markdown，GitHub Actions 自动构建并部署到 GitHub Pages（Project Pages）。
+
+## 本地运行
+
+```bash
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 写文章
 
-## 🚀 Project Structure
+文章放在 `src/content/blog/`，文件名会成为 URL（例如 `hello-astro.md` → `/blog/hello-astro/`）。
 
-Inside of your Astro project, you'll see the following folders and files:
+Frontmatter 模板（`category` 在 v1 **必填**）：
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```md
+---
+title: 标题
+description: 一句话摘要
+pubDate: 2026-04-17
+updatedDate: 2026-04-18 # 可选
+category: 笔记
+tags: [Astro, Tailwind] # 可选
+draft: false           # 可选；true 时不会出现在列表 / RSS / sitemap
+---
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 常用命令
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```bash
+npm test
+npm run build
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+## GitHub Pages（Project Pages）配置
 
-## 🧞 Commands
+本项目通过环境变量配置 `site/base`，确保 **RSS / sitemap** 在 Project Pages 子路径下也生成正确链接。
 
-All commands are run from the root of the project, from a terminal:
+1. 复制 `.env.example` 为 `.env`
+2. 设置：
+   - `SITE_URL=https://<user>.github.io/<repo>`（无尾部斜杠）
+   - `BASE_PATH=/<repo>/`
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## 部署（GitHub Actions）
 
-## 🌐 GitHub Pages（Project Pages）占位配置
+已提供工作流：`.github/workflows/deploy.yml`
 
-Astro 配置会从环境变量读取 `SITE_URL` 与 `BASE_PATH`，以便在仓库创建后直接部署到 GitHub Pages（Project Pages）。
+在 GitHub 仓库里需要配置：
 
-1. Copy `.env.example` to `.env`.
-2. Set `SITE_URL` to `https://<user>.github.io/<repo>` (no trailing slash).
-3. Set `BASE_PATH` to `/<repo>/` for project pages (or `/` for user/org pages).
+- Settings → Pages → Source 选择 **GitHub Actions**
+- 默认分支建议使用 `main`
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
