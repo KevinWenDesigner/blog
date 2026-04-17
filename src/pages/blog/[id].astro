@@ -1,12 +1,14 @@
 ---
 import PostNav from '../../components/PostNav.astro';
 import RelatedPosts from '../../components/RelatedPosts.astro';
+import ShareButton from '../../components/ShareButton.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
 import Comments from '../../components/Comments.astro';
 import Layout from '../../layouts/Layout.astro';
 import { render } from 'astro:content';
 import { getPublishedBlogPosts } from '../../lib/astroPosts';
 import { getAdjacentPosts, getReadingMinutes, getRelatedPosts } from '../../lib/posts';
+import { buildArticleShareUrl } from '../../lib/share';
 
 export async function getStaticPaths() {
   const posts = await getPublishedBlogPosts();
@@ -29,6 +31,11 @@ const updatedLabel = post.data.updatedDate
 const readingMinutes = getReadingMinutes(post.body);
 const { newer, older } = getAdjacentPosts(posts, post.id);
 const relatedPosts = getRelatedPosts(posts, post);
+const shareUrl = buildArticleShareUrl({
+  site: Astro.site,
+  basePath: import.meta.env.BASE_URL,
+  postId: post.id
+});
 ---
 
 <Layout title={post.data.title} description={post.data.description}>
@@ -54,6 +61,7 @@ const relatedPosts = getRelatedPosts(posts, post);
         ))}
       </div>
       {post.data.keywords.length > 0 ? <p class="sr-only">关键词：{post.data.keywords.join('，')}</p> : null}
+      <ShareButton title={post.data.title} description={post.data.description} url={shareUrl} />
     </header>
 
     <TableOfContents headings={headings} />
