@@ -1,0 +1,40 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => data.draft !== true);
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post }
+  }));
+}
+
+const { post } = Astro.props as {
+  post: Awaited<ReturnType<typeof getCollection>>[number];
+};
+
+const { Content } = await render(post);
+const dateLabel = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' }).format(post.data.pubDate);
+---
+
+<Layout title={post.data.title} description={post.data.description}>
+  <article class="leading-relaxed">
+    <header class="mb-8">
+      <h1 class="text-3xl font-semibold tracking-tight">{post.data.title}</h1>
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
+        <time datetime={post.data.pubDate.toISOString()}>{dateLabel}</time>
+        <span class="text-slate-300">·</span>
+        <a class="hover:underline" href={`/categories/${encodeURIComponent(post.data.category)}/`}>
+          {post.data.category}
+        </a>
+        {post.data.tags.map((tag) => (
+          <a class="hover:underline" href={`/tags/${encodeURIComponent(tag)}/`}>#{tag}</a>
+        ))}
+      </div>
+    </header>
+
+    <Content />
+  </article>
+</Layout>
+

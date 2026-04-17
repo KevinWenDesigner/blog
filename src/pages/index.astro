@@ -1,10 +1,23 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPublishedBlogPosts } from '../lib/astroPosts';
+
+const posts = await getPublishedBlogPosts();
+const recent = posts.slice(0, 5);
 ---
 
-<Layout title="Blog">
-	<h1 class="text-4xl font-semibold tracking-tight">Blog</h1>
-	<p class="mt-3 text-slate-600">
-		Astro + Tailwind scaffold, ready for GitHub Pages project hosting.
-	</p>
+<Layout title="技术笔记" description="个人技术学习笔记：教程、踩坑与读书笔记。">
+	<h1 class="text-4xl font-semibold tracking-tight">技术笔记</h1>
+	<p class="mt-3 text-slate-600">教程、踩坑与读书笔记。</p>
+
+	<section class="mt-10 space-y-4">
+		<h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">最新文章</h2>
+		<div class="mt-4 grid gap-4">
+			{recent.map((post) => <PostCard post={post} />)}
+		</div>
+		<div class="pt-2">
+			<a class="text-sm font-medium text-slate-700 hover:underline" href="/blog">查看全部文章 →</a>
+		</div>
+	</section>
 </Layout>
