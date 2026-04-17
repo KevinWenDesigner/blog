@@ -48,6 +48,7 @@ describe('admin OAuth helpers', () => {
     expect(html.indexOf('window.addEventListener("message", receiveMessage, false)')).toBeLessThan(
       html.indexOf('authorizing:github')
     );
+    expect(html).not.toContain('window.close()');
   });
 
   it('shows the OAuth result instead of throwing when callback is opened without an opener', () => {

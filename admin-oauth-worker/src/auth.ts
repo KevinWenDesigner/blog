@@ -125,7 +125,6 @@ export function buildCallbackHtml(status: 'success' | 'error', payload: Record<s
         const receiveMessage = () => {
           window.opener.postMessage(message, "*");
           window.removeEventListener("message", receiveMessage, false);
-          window.close();
         };
         window.addEventListener("message", receiveMessage, false);
         window.opener.postMessage("authorizing:github", "*");
