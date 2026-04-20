@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   matchChannelEntry,
+  parseYtDlpDiscoveryLines,
   parseYoutubeFeed,
   resolveCategory,
   type ChannelConfig,
@@ -82,6 +83,50 @@ describe('autoblog discovery', () => {
         channel
       )
     ).toBe(false);
+  });
+
+  it('parses yt-dlp discovery lines when the YouTube feed is unavailable', () => {
+    const lines = [
+      JSON.stringify({
+        id: '77dNa9uscTM',
+        title: 'Google 把 AI 搜索塞进 Windows！完全免费，比传统搜索强太多了（实测体验）| 零度解说',
+        description: 'AI 搜索和 Windows 集成实测。',
+        upload_date: '20260418',
+        webpage_url: 'https://www.youtube.com/watch?v=77dNa9uscTM'
+      }),
+      JSON.stringify({
+        id: 'vsm1oVl_pzE',
+        title: '5分钟搭建AI助手！自动接单+自动回复，小白也能用',
+        description: 'Hostinger 自动化工作流。',
+        timestamp: 1776428109,
+        channel: '零度解说',
+        channel_id: 'UCvijahEyGtvMpmMHBu4FS2w',
+        webpage_url: 'https://www.youtube.com/watch?v=vsm1oVl_pzE'
+      })
+    ].join('\n');
+
+    expect(parseYtDlpDiscoveryLines(lines, channel)).toEqual([
+      {
+        videoId: '77dNa9uscTM',
+        channelId: 'UC123',
+        title: 'Google 把 AI 搜索塞进 Windows！完全免费，比传统搜索强太多了（实测体验）| 零度解说',
+        description: 'AI 搜索和 Windows 集成实测。',
+        publishedAt: '2026-04-18T00:00:00.000Z',
+        updatedAt: '2026-04-18T00:00:00.000Z',
+        channelName: 'AI Notes',
+        url: 'https://www.youtube.com/watch?v=77dNa9uscTM'
+      },
+      {
+        videoId: 'vsm1oVl_pzE',
+        channelId: 'UCvijahEyGtvMpmMHBu4FS2w',
+        title: '5分钟搭建AI助手！自动接单+自动回复，小白也能用',
+        description: 'Hostinger 自动化工作流。',
+        publishedAt: '2026-04-17T12:15:09.000Z',
+        updatedAt: '2026-04-17T12:15:09.000Z',
+        channelName: '零度解说',
+        url: 'https://www.youtube.com/watch?v=vsm1oVl_pzE'
+      }
+    ]);
   });
 
   it('maps categories from keyword rules and falls back to the channel default', () => {

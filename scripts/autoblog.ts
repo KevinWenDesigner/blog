@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import { parseAutomationConfig } from '../src/lib/autoblog/config';
 import {
   matchChannelEntry,
+  parseYtDlpDiscoveryLines,
   parseYoutubeFeed,
   resolveCategory,
   type ChannelConfig,
@@ -45,7 +46,11 @@ type YtDlpMetadata = {
   title: string;
   description?: string;
   channel?: string;
+  channel_id?: string;
   thumbnail?: string;
+  upload_date?: string;
+  timestamp?: number;
+  webpage_url?: string;
   subtitles?: Record<string, Array<{ ext?: string; url: string }>>;
   automatic_captions?: Record<string, Array<{ ext?: string; url: string }>>;
 };
@@ -66,6 +71,33 @@ function isTruthy(value: string | undefined): boolean {
 
 function normalizeIsoDate(input: string): string {
   return input.slice(0, 10);
+}
+
+function normalizeYtDlpPublishedAt(
+  input: Pick<YtDlpMetadata, 'upload_date' | 'timestamp'> | null | undefined
+): string | undefined {
+  if (typeof input?.timestamp === 'number' && Number.isFinite(input.timestamp)) {
+    return new Date(input.timestamp * 1000).toISOString();
+  }
+
+  const compactDate = input?.upload_date?.trim() ?? '';
+  if (/^\d{8}$/.test(compactDate)) {
+    const year = compactDate.slice(0, 4);
+    const month = compactDate.slice(4, 6);
+    const day = compactDate.slice(6, 8);
+    return `${year}-${month}-${day}T00:00:00.000Z`;
+  }
+
+  return undefined;
+}
+
+function dateSortValue(input: string): number {
+  const parsed = Date.parse(input);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function shouldUseYtDlpDiscoveryFallback(error: unknown): boolean {
+  return error instanceof Error && /:\s*404\b/.test(error.message);
 }
 
 async function readMarkdownContents(dir: string): Promise<string[]> {
@@ -102,12 +134,43 @@ async function fetchText(url: string): Promise<string> {
   return response.text();
 }
 
-async function loadChannelEntries(channel: ChannelConfig): Promise<FeedEntry[]> {
-  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channel.channelId}`;
-  const xml = await fetchText(feedUrl);
+async function loadChannelEntriesFromFeed(channel: ChannelConfig): Promise<FeedEntry[]> {
+  const xml = await fetchText(`https://www.youtube.com/feeds/videos.xml?channel_id=${channel.channelId}`);
   return parseYoutubeFeed(xml)
     .filter((entry) => entry.channelId === channel.channelId)
     .filter((entry) => matchChannelEntry(entry, channel));
+}
+
+async function loadChannelEntriesWithYtDlp(channel: ChannelConfig, limit: number): Promise<FeedEntry[]> {
+  const { stdout } = await execFileAsync(
+    'yt-dlp',
+    [
+      '--dump-json',
+      '--skip-download',
+      '--no-warnings',
+      '--playlist-end',
+      String(limit),
+      `https://www.youtube.com/channel/${channel.channelId}/videos`
+    ],
+    {
+      cwd: repoRoot,
+      maxBuffer: 50 * 1024 * 1024
+    }
+  );
+
+  return parseYtDlpDiscoveryLines(stdout, channel).filter((entry) => matchChannelEntry(entry, channel));
+}
+
+async function loadChannelEntries(channel: ChannelConfig, limit: number): Promise<FeedEntry[]> {
+  try {
+    return await loadChannelEntriesFromFeed(channel);
+  } catch (error) {
+    if (!shouldUseYtDlpDiscoveryFallback(error)) {
+      throw error;
+    }
+
+    return loadChannelEntriesWithYtDlp(channel, limit);
+  }
 }
 
 async function readVideoMetadata(url: string): Promise<YtDlpMetadata> {
@@ -187,10 +250,13 @@ async function main(): Promise<void> {
     }
 
     const existingVideoIds = extractExistingVideoIds(await readMarkdownContents(contentDir));
-    const channelEntries = await Promise.all(config.channels.map((channel) => loadChannelEntries(channel)));
-    const flattened = channelEntries.flat().sort(
-      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    const discoveryLookahead = Number.isFinite(maxVideos) ? Math.max(maxVideos * 3, 10) : 10;
+    const channelEntries = await Promise.all(
+      config.channels.map((channel) => loadChannelEntries(channel, discoveryLookahead))
     );
+    const flattened = channelEntries
+      .flat()
+      .sort((a, b) => dateSortValue(b.publishedAt) - dateSortValue(a.publishedAt));
 
     const seenVideoIds = new Set<string>(existingVideoIds);
     const queue: Array<{ channel: ChannelConfig; entry: FeedEntry }> = [];
@@ -293,7 +359,8 @@ async function main(): Promise<void> {
             url: item.entry.url,
             channel: metadata.channel ?? item.entry.channelName,
             originalTitle: metadata.title,
-            publishedAt: item.entry.publishedAt,
+            publishedAt:
+              normalizeYtDlpPublishedAt(metadata) || item.entry.publishedAt || new Date().toISOString(),
             thumbnail: metadata.thumbnail
           }
         });
