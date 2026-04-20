@@ -31,6 +31,36 @@ type GeminiResponse = {
 };
 
 const DEFAULT_MODEL = 'gemini-2.5-flash';
+const FALLBACK_MODEL = 'gemini-2.5-flash-lite';
+
+class GeminiRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number
+  ) {
+    super(message);
+    this.name = 'GeminiRequestError';
+  }
+}
+
+function isTemporaryGeminiError(error: unknown): boolean {
+  if (!(error instanceof GeminiRequestError)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return (
+    error.status === 429 ||
+    error.status === 503 ||
+    message.includes('high demand') ||
+    message.includes('try again later') ||
+    message.includes('temporarily')
+  );
+}
+
+function buildModelAttempts(model: string): string[] {
+  return Array.from(new Set([model, FALLBACK_MODEL]));
+}
 
 function readGeminiResponseText(response: GeminiResponse): string {
   for (const candidate of response.candidates ?? []) {
@@ -44,9 +74,9 @@ function readGeminiResponseText(response: GeminiResponse): string {
   throw new Error(response.error?.message || 'Gemini response did not contain structured text output');
 }
 
-export async function generateArticleWithGemini({
+async function requestGeminiArticle({
   apiKey,
-  model = DEFAULT_MODEL,
+  model,
   metadata,
   transcript
 }: GenerateArticleInput): Promise<GeneratedArticle> {
@@ -79,8 +109,28 @@ export async function generateArticleWithGemini({
 
   const payload = (await response.json()) as GeminiResponse;
   if (!response.ok) {
-    throw new Error(payload.error?.message || `Gemini request failed with status ${response.status}`);
+    throw new GeminiRequestError(payload.error?.message || `Gemini request failed with status ${response.status}`, response.status);
   }
 
   return normalizeGeneratedArticle(JSON.parse(readGeminiResponseText(payload)));
+}
+
+export async function generateArticleWithGemini({
+  model = DEFAULT_MODEL,
+  ...input
+}: GenerateArticleInput): Promise<GeneratedArticle> {
+  let lastError: unknown = null;
+
+  for (const modelAttempt of buildModelAttempts(model)) {
+    try {
+      return await requestGeminiArticle({ ...input, model: modelAttempt });
+    } catch (error) {
+      lastError = error;
+      if (!isTemporaryGeminiError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
 }

@@ -70,4 +70,71 @@ describe('autoblog Gemini generation', () => {
     expect(body.generationConfig.responseMimeType).toBe('application/json');
     expect(body.generationConfig.responseJsonSchema.required).toContain('keyPoints');
   });
+
+  it('falls back to Flash-Lite when the primary Gemini model is temporarily overloaded', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        json: async () => ({
+          error: {
+            message:
+              'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.'
+          }
+        })
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    text: JSON.stringify({
+                      title: 'Fallback article',
+                      description: '一篇通过备用模型生成的摘要。',
+                      tags: ['AI'],
+                      keywords: ['Gemini'],
+                      summary:
+                        '主模型临时高需求时，系统会自动使用备用模型完成文章生成，保证自动发布流程在容量波动时仍能继续运行。',
+                      keyPoints: [
+                        { heading: '备用模型', detail: '备用模型保证自动发布流程不中断。', timestamp: null },
+                        { heading: '结构化输出', detail: '备用模型仍然返回同样的 JSON 结构。', timestamp: null },
+                        { heading: '发布稳定性', detail: '临时容量问题不再直接导致整条内容失败。', timestamp: null }
+                      ],
+                      notableDetails: [],
+                      actionAdvice: []
+                    })
+                  }
+                ]
+              }
+            }
+          ]
+        })
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const article = await generateArticleWithGemini({
+      apiKey: 'gemini-key',
+      model: 'gemini-2.5-flash',
+      metadata: {
+        title: 'Google 把 AI 搜索塞进 Windows',
+        description: 'AI 搜索体验',
+        channel: '零度解说',
+        url: 'https://www.youtube.com/watch?v=77dNa9uscTM'
+      },
+      transcript: '[00:00] Google AI Search on Windows'
+    });
+
+    expect(article.title).toBe('Fallback article');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+    );
+    expect(fetchMock.mock.calls[1]?.[0]).toBe(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent'
+    );
+  });
 });
