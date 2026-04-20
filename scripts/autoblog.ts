@@ -147,6 +147,7 @@ async function loadChannelEntriesWithYtDlp(channel: ChannelConfig, limit: number
     [
       '--dump-json',
       '--skip-download',
+      '--flat-playlist',
       '--no-warnings',
       '--playlist-end',
       String(limit),
@@ -158,7 +159,21 @@ async function loadChannelEntriesWithYtDlp(channel: ChannelConfig, limit: number
     }
   );
 
-  return parseYtDlpDiscoveryLines(stdout, channel).filter((entry) => matchChannelEntry(entry, channel));
+  const discoveredAt = Date.now();
+  return parseYtDlpDiscoveryLines(stdout, channel)
+    .map((entry, index) => {
+      if (entry.publishedAt) {
+        return entry;
+      }
+
+      const syntheticPublishedAt = new Date(discoveredAt - index * 1000).toISOString();
+      return {
+        ...entry,
+        publishedAt: syntheticPublishedAt,
+        updatedAt: syntheticPublishedAt
+      };
+    })
+    .filter((entry) => matchChannelEntry(entry, channel));
 }
 
 async function loadChannelEntries(channel: ChannelConfig, limit: number): Promise<FeedEntry[]> {
