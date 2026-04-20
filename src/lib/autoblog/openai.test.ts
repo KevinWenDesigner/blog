@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalizeGeneratedArticle } from './openai';
+import { AUTOBLOG_RESPONSE_SCHEMA, normalizeGeneratedArticle } from './openai';
 
 describe('autoblog OpenAI normalization', () => {
   it('accepts a valid structured article and trims noisy values', () => {
@@ -31,5 +31,12 @@ describe('autoblog OpenAI normalization', () => {
         description: 'missing sections'
       })
     ).toThrow(/tags|keyPoints/i);
+  });
+
+  it('marks every nested keyPoint property as required for strict structured outputs', () => {
+    const keyPointItems = AUTOBLOG_RESPONSE_SCHEMA.properties.keyPoints.items;
+
+    expect(keyPointItems.required).toEqual(['heading', 'detail', 'timestamp']);
+    expect(keyPointItems.properties.timestamp.type).toEqual(['string', 'null']);
   });
 });

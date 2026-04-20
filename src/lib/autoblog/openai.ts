@@ -34,7 +34,7 @@ type OpenAIResponse = {
 const DEFAULT_MODEL = 'gpt-4o-mini';
 const MAX_TRANSCRIPT_CHARACTERS = 18_000;
 
-const AUTOBLOG_RESPONSE_SCHEMA = {
+export const AUTOBLOG_RESPONSE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   properties: {
@@ -63,9 +63,9 @@ const AUTOBLOG_RESPONSE_SCHEMA = {
         properties: {
           heading: { type: 'string', minLength: 4 },
           detail: { type: 'string', minLength: 12 },
-          timestamp: { type: 'string' }
+          timestamp: { type: ['string', 'null'] }
         },
-        required: ['heading', 'detail']
+        required: ['heading', 'detail', 'timestamp']
       }
     },
     notableDetails: {
@@ -150,7 +150,7 @@ function buildPrompt({ metadata, transcript }: Omit<GenerateArticleInput, 'apiKe
     '- 风格务实、具体，避免宣传语。',
     '- title 和 description 必须适合作为博客文章标题与摘要。',
     '- keyPoints 保持 3 到 5 条，每条聚焦一个可复用观点。',
-    '- 若字幕中能明确定位时间点，可在 timestamp 中填写 mm:ss。',
+    '- keyPoints 每条都必须包含 timestamp；若字幕中能明确定位时间点，填写 mm:ss，否则填写 null。',
     '',
     `视频标题：${metadata.title}`,
     `频道：${metadata.channel}`,
