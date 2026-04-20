@@ -140,7 +140,10 @@ export function normalizeGeneratedArticle(value: unknown): GeneratedArticle {
   };
 }
 
-function buildPrompt({ metadata, transcript }: Omit<GenerateArticleInput, 'apiKey' | 'model'>): string {
+export function buildAutoblogArticlePrompt({
+  metadata,
+  transcript
+}: Omit<GenerateArticleInput, 'apiKey' | 'model'>): string {
   const clippedTranscript = transcript.slice(0, MAX_TRANSCRIPT_CHARACTERS);
 
   return [
@@ -205,7 +208,7 @@ export async function generateArticleWithOpenAI({
         },
         {
           role: 'user',
-          content: buildPrompt({ metadata, transcript })
+          content: buildAutoblogArticlePrompt({ metadata, transcript })
         }
       ],
       text: {

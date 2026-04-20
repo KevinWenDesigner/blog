@@ -82,12 +82,15 @@ OAuth 代理部署说明见 `docs/admin-publishing.md`。不要把 GitHub token�
 需要配置：
 
 ```bash
-OPENAI_API_KEY=<secret>
-AUTOBLOG_OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=<secret>
+AUTOBLOG_LLM_PROVIDER=gemini
+AUTOBLOG_GEMINI_MODEL=gemini-2.5-flash
 YOUTUBE_COOKIES_B64=<base64 encoded cookies.txt>
 ```
 
-`AUTOBLOG_OPENAI_MODEL` 是可选变量，不配置时默认使用 `gpt-4o-mini`。如果 GitHub runner 被 YouTube 要求登录验证，需要把浏览器导出的 Netscape 格式 `cookies.txt` 配到 GitHub Secrets。推荐配置 `YOUTUBE_COOKIES_B64`，生成方式：
+默认优先使用 Gemini：未显式配置 `AUTOBLOG_LLM_PROVIDER` 时，如果存在 `GEMINI_API_KEY`，工作流会使用 Gemini；否则回退到 OpenAI。`AUTOBLOG_GEMINI_MODEL` 是可选变量，不配置时默认使用 `gemini-2.5-flash`。仍可通过 `AUTOBLOG_LLM_PROVIDER=openai`、`OPENAI_API_KEY`、`AUTOBLOG_OPENAI_MODEL=gpt-4o-mini` 切回 OpenAI。
+
+如果 GitHub runner 被 YouTube 要求登录验证，需要把浏览器导出的 Netscape 格式 `cookies.txt` 配到 GitHub Secrets。推荐配置 `YOUTUBE_COOKIES_B64`，生成方式：
 
 ```bash
 base64 -w 0 cookies.txt

@@ -13,7 +13,9 @@ import {
   type ChannelConfig,
   type FeedEntry
 } from '../src/lib/autoblog/discovery';
+import { generateArticleWithGemini } from '../src/lib/autoblog/gemini';
 import { generateArticleWithOpenAI } from '../src/lib/autoblog/openai';
+import { resolveArticleGeneratorConfig } from '../src/lib/autoblog/providers';
 import {
   buildAutoblogMarkdown,
   buildAutoblogSlug,
@@ -243,8 +245,6 @@ function buildSummaryMarkdown(report: RunReport): string {
 async function main(): Promise<void> {
   const dryRun = isTruthy(process.env.AUTOBLOG_DRY_RUN);
   const maxVideos = Number.parseInt(process.env.AUTOBLOG_MAX_VIDEOS ?? '3', 10);
-  const openAiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.AUTOBLOG_OPENAI_MODEL;
   const configPath = resolve(repoRoot, process.env.AUTOBLOG_CONFIG_PATH ?? 'automation/channels.json');
 
   await ensureDirectory(reportDir);
@@ -265,10 +265,7 @@ async function main(): Promise<void> {
       return;
     }
 
-    if (!openAiKey) {
-      throw new Error('Missing OPENAI_API_KEY');
-    }
-
+    const articleGenerator = resolveArticleGeneratorConfig(process.env);
     const existingVideoIds = extractExistingVideoIds(await readMarkdownContents(contentDir));
     const discoveryLookahead = Number.isFinite(maxVideos) ? Math.max(maxVideos * 3, 10) : 10;
     const channelEntries = await Promise.all(
@@ -339,9 +336,11 @@ async function main(): Promise<void> {
         let lastError: unknown = null;
         for (let attempt = 0; attempt < 2; attempt += 1) {
           try {
-            article = await generateArticleWithOpenAI({
-              apiKey: openAiKey,
-              model,
+            const generateArticle =
+              articleGenerator.provider === 'gemini' ? generateArticleWithGemini : generateArticleWithOpenAI;
+            article = await generateArticle({
+              apiKey: articleGenerator.apiKey,
+              model: articleGenerator.model,
               metadata: {
                 title: metadata.title,
                 description: metadata.description ?? item.entry.description,

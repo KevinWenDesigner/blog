@@ -66,6 +66,9 @@ jobs:
 
       - name: Run autoblog pipeline
         env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AUTOBLOG_GEMINI_MODEL: ${{ vars.AUTOBLOG_GEMINI_MODEL || 'gemini-2.5-flash' }}
+          AUTOBLOG_LLM_PROVIDER: ${{ vars.AUTOBLOG_LLM_PROVIDER }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           AUTOBLOG_OPENAI_MODEL: ${{ vars.AUTOBLOG_OPENAI_MODEL || 'gpt-4o-mini' }}
           AUTOBLOG_DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
