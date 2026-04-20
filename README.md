@@ -9,6 +9,7 @@
 - 文章目录、阅读时间、更新日期、相关文章、较新/较早文章导航
 - 浏览器写作后台（Decap CMS + GitHub OAuth 白名单）
 - GitHub Discussions 评论（Giscus，可按文章关闭）
+- YouTube 自动发现与摘要发布（GitHub Actions + yt-dlp + OpenAI）
 - RSS、sitemap、GitHub Pages 自动部署
 
 ## 本地运行
@@ -73,6 +74,44 @@ ADMIN_CATEGORIES=笔记,工程化,教程,踩坑,读书
 ```
 
 OAuth 代理部署说明见 `docs/admin-publishing.md`。不要把 GitHub token、OAuth client secret 或 Cloudflare secrets 提交进仓库。
+
+## YouTube 自动发布
+
+自动化工作流定义在 `.github/workflows/autoblog.yml`。它会按计划任务读取 `automation/channels.json` 中的频道白名单，抓取匹配关键词的新视频，抽取字幕并生成 Markdown，最后直接提交到 `src/content/blog/`。
+
+需要配置：
+
+```bash
+OPENAI_API_KEY=<secret>
+AUTOBLOG_OPENAI_MODEL=gpt-4o-mini
+```
+
+`automation/channels.json` 结构示例：
+
+```json
+{
+  "categoryRules": [
+    { "category": "工程化", "keywords": ["workflow", "pipeline", "automation"] }
+  ],
+  "channels": [
+    {
+      "channelId": "UCxxxx",
+      "label": "Channel Name",
+      "defaultCategory": "读书",
+      "includeKeywords": ["openai", "agent"],
+      "excludeKeywords": ["podcast"],
+      "defaultTags": ["AI", "YouTube"]
+    }
+  ]
+}
+```
+
+默认行为：
+
+- 每个视频生成一篇文章
+- 只处理能稳定抓到字幕的视频
+- 直接发布，不进草稿箱
+- 无字幕、重复视频、模型失败会记录到 `.autoblog/autoblog-report.json`
 
 ## 评论功能
 

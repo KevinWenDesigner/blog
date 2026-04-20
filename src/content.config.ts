@@ -13,7 +13,18 @@ const blog = defineCollection({
     tags: z.array(z.string().min(1)).default([]),
     keywords: z.array(z.string().min(1)).default([]),
     draft: z.boolean().default(false),
-    comments: z.boolean().default(true)
+    comments: z.boolean().default(true),
+    source: z
+      .object({
+        platform: z.literal('youtube'),
+        videoId: z.string().min(1),
+        url: z.string().url(),
+        channel: z.string().min(1),
+        originalTitle: z.string().min(1),
+        publishedAt: z.string().min(1),
+        thumbnail: z.string().url().optional()
+      })
+      .optional()
   })
 });
 

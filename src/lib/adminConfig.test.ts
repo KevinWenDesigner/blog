@@ -43,7 +43,7 @@ describe('buildAdminConfig', () => {
       siteUrl: 'https://owner.github.io'
     });
 
-    for (const field of ['title', 'description', 'pubDate', 'updatedDate', 'category', 'tags', 'keywords', 'draft', 'comments']) {
+    for (const field of ['title', 'description', 'pubDate', 'updatedDate', 'category', 'tags', 'keywords', 'draft', 'comments', 'source']) {
       expect(config).toContain(`name: ${field}`);
     }
   });

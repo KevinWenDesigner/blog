@@ -1,0 +1,52 @@
+{
+  "categoryRules": [
+    {
+      "category": "工程化",
+      "keywords": ["workflow", "pipeline", "ci", "deploy", "automation", "release"]
+    },
+    {
+      "category": "教程",
+      "keywords": ["guide", "tutorial", "walkthrough", "how to", "教程", "入门"]
+    },
+    {
+      "category": "踩坑",
+      "keywords": ["bug", "incident", "failure", "debug", "踩坑", "问题"]
+    },
+    {
+      "category": "读书",
+      "keywords": ["analysis", "review", "report", "paper", "benchmark", "评估"]
+    }
+  ],
+  "channels": [
+    {
+      "channelId": "UCvijahEyGtvMpmMHBu4FS2w",
+      "label": "零度解说",
+      "defaultCategory": "读书",
+      "includeKeywords": [
+        "ai",
+        "google",
+        "gemini",
+        "openai",
+        "claude",
+        "agent",
+        "搜索",
+        "模型",
+        "实测",
+        "体验"
+      ],
+      "excludeKeywords": [
+        "podcast",
+        "直播",
+        "live",
+        "新闻联播",
+        "reaction",
+        "闲聊"
+      ],
+      "defaultTags": [
+        "AI",
+        "Google",
+        "YouTube"
+      ]
+    }
+  ]
+}

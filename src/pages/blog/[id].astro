@@ -4,6 +4,7 @@ import RelatedPosts from '../../components/RelatedPosts.astro';
 import ShareButton from '../../components/ShareButton.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
 import Comments from '../../components/Comments.astro';
+import SourceCard from '../../components/SourceCard.astro';
 import Layout from '../../layouts/Layout.astro';
 import { render } from 'astro:content';
 import { getPublishedBlogPosts } from '../../lib/astroPosts';
@@ -68,6 +69,7 @@ const shareUrl = buildArticleShareUrl({
       <ShareButton title={post.data.title} description={post.data.description} url={shareUrl} />
     </header>
 
+    {post.data.source ? <SourceCard source={post.data.source} /> : null}
     <TableOfContents headings={headings} />
     <div class="article-body">
       <Content />

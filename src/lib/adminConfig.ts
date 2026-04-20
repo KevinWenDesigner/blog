@@ -139,6 +139,41 @@ ${yamlList(categories)}
         widget: boolean
         required: false
         default: true
+      - label: 来源信息
+        name: source
+        widget: object
+        required: false
+        collapsed: true
+        summary: "{{fields.platform}} - {{fields.videoId}}"
+        fields:
+          - label: 平台
+            name: platform
+            widget: string
+            required: false
+          - label: 视频 ID
+            name: videoId
+            widget: string
+            required: false
+          - label: 原视频链接
+            name: url
+            widget: string
+            required: false
+          - label: 频道
+            name: channel
+            widget: string
+            required: false
+          - label: 原始标题
+            name: originalTitle
+            widget: string
+            required: false
+          - label: 视频发布时间
+            name: publishedAt
+            widget: string
+            required: false
+          - label: 缩略图
+            name: thumbnail
+            widget: string
+            required: false
       - label: 正文
         name: body
         widget: markdown
