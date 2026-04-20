@@ -20,7 +20,7 @@ import {
   extractExistingVideoIds
 } from '../src/lib/autoblog/render';
 import { normalizeSubtitleTranscript, selectSubtitleTrack, transcriptLooksUsable } from '../src/lib/autoblog/transcript';
-import { buildYtDlpArgs } from '../src/lib/autoblog/ytDlp';
+import { buildYtDlpArgs, buildYtDlpMetadataArgs } from '../src/lib/autoblog/ytDlp';
 
 type CandidateResult = {
   videoId: string;
@@ -196,7 +196,7 @@ async function loadChannelEntries(channel: ChannelConfig, limit: number): Promis
 async function readVideoMetadata(url: string): Promise<YtDlpMetadata> {
   const { stdout } = await execFileAsync(
     'yt-dlp',
-    buildYtDlpArgs(['--dump-single-json', '--skip-download', '--no-warnings'], url, youtubeCookiesPath),
+    buildYtDlpMetadataArgs(url, youtubeCookiesPath),
     {
       cwd: repoRoot,
       maxBuffer: 20 * 1024 * 1024
