@@ -18,12 +18,16 @@ export type VideoMetadata = {
 };
 
 const LANGUAGE_PRIORITY = ['zh-hans', 'zh-cn', 'zh', 'en', 'en-us', 'en-gb'];
+const ORIGINAL_AUTOMATIC_LANGUAGE_PRIORITY = ['en', 'en-us', 'en-gb', 'zh-hans', 'zh-cn', 'zh'];
 const EXTENSION_PRIORITY = ['vtt', 'json3'];
 
-function sortedLanguageEntries(tracks: Record<string, SubtitleTrack[]> | undefined): [string, SubtitleTrack[]][] {
+function sortedLanguageEntries(
+  tracks: Record<string, SubtitleTrack[]> | undefined,
+  languagePriority = LANGUAGE_PRIORITY
+): [string, SubtitleTrack[]][] {
   return Object.entries(tracks ?? {}).sort((a, b) => {
-    const aIndex = LANGUAGE_PRIORITY.indexOf(a[0].toLowerCase());
-    const bIndex = LANGUAGE_PRIORITY.indexOf(b[0].toLowerCase());
+    const aIndex = languagePriority.indexOf(a[0].toLowerCase());
+    const bIndex = languagePriority.indexOf(b[0].toLowerCase());
     const normalizedA = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
     const normalizedB = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
 
@@ -45,6 +49,15 @@ function pickTrack(tracks: SubtitleTrack[]): SubtitleTrack | undefined {
   })[0];
 }
 
+function isTranslatedTrack(track: SubtitleTrack): boolean {
+  return /[?&]tlang=/i.test(track.url);
+}
+
+function pickAutomaticTrack(tracks: SubtitleTrack[]): SubtitleTrack | undefined {
+  const originalTracks = tracks.filter((track) => !isTranslatedTrack(track));
+  return pickTrack(originalTracks.length > 0 ? originalTracks : tracks);
+}
+
 export function selectSubtitleTrack(metadata: VideoMetadata): SubtitleTrackSelection | null {
   for (const [language, tracks] of sortedLanguageEntries(metadata.subtitles)) {
     const selected = pickTrack(tracks);
@@ -58,8 +71,11 @@ export function selectSubtitleTrack(metadata: VideoMetadata): SubtitleTrackSelec
     }
   }
 
-  for (const [language, tracks] of sortedLanguageEntries(metadata.automatic_captions)) {
-    const selected = pickTrack(tracks);
+  for (const [language, tracks] of sortedLanguageEntries(
+    metadata.automatic_captions,
+    ORIGINAL_AUTOMATIC_LANGUAGE_PRIORITY
+  )) {
+    const selected = pickAutomaticTrack(tracks);
     if (selected?.url) {
       return {
         language,
