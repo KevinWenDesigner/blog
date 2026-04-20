@@ -32,3 +32,6 @@ admin-oauth-worker/.dev.vars
 
 # autoblog runtime artifacts
 .autoblog/
+cookies.txt
+youtube-cookies.txt
+*.cookies.txt

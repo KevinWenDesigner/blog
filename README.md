@@ -84,7 +84,22 @@ OAuth 代理部署说明见 `docs/admin-publishing.md`。不要把 GitHub token�
 ```bash
 OPENAI_API_KEY=<secret>
 AUTOBLOG_OPENAI_MODEL=gpt-4o-mini
+YOUTUBE_COOKIES_B64=<base64 encoded cookies.txt>
 ```
+
+`AUTOBLOG_OPENAI_MODEL` 是可选变量，不配置时默认使用 `gpt-4o-mini`。如果 GitHub runner 被 YouTube 要求登录验证，需要把浏览器导出的 Netscape 格式 `cookies.txt` 配到 GitHub Secrets。推荐配置 `YOUTUBE_COOKIES_B64`，生成方式：
+
+```bash
+base64 -w 0 cookies.txt
+```
+
+Windows PowerShell 可用：
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("cookies.txt"))
+```
+
+也可以直接配置多行 secret `YOUTUBE_COOKIES`。工作流会优先读取 `YOUTUBE_COOKIES_B64`，其次读取 `YOUTUBE_COOKIES`，并只在 runner 临时目录写入 cookie 文件。不要把 cookies 提交进仓库。
 
 `automation/channels.json` 结构示例：
 

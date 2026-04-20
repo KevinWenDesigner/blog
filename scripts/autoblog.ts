@@ -20,6 +20,7 @@ import {
   extractExistingVideoIds
 } from '../src/lib/autoblog/render';
 import { normalizeSubtitleTranscript, selectSubtitleTrack, transcriptLooksUsable } from '../src/lib/autoblog/transcript';
+import { buildYtDlpArgs } from '../src/lib/autoblog/ytDlp';
 
 type CandidateResult = {
   videoId: string;
@@ -64,6 +65,7 @@ const reportDir = resolve(repoRoot, '.autoblog');
 const previewDir = resolve(reportDir, 'generated-posts');
 const reportPath = resolve(reportDir, 'autoblog-report.json');
 const summaryPath = resolve(reportDir, 'summary.md');
+const youtubeCookiesPath = process.env.YOUTUBE_COOKIES_PATH;
 
 function isTruthy(value: string | undefined): boolean {
   return value === '1' || value === 'true' || value === 'yes';
@@ -144,15 +146,18 @@ async function loadChannelEntriesFromFeed(channel: ChannelConfig): Promise<FeedE
 async function loadChannelEntriesWithYtDlp(channel: ChannelConfig, limit: number): Promise<FeedEntry[]> {
   const { stdout } = await execFileAsync(
     'yt-dlp',
-    [
-      '--dump-json',
-      '--skip-download',
-      '--flat-playlist',
-      '--no-warnings',
-      '--playlist-end',
-      String(limit),
-      `https://www.youtube.com/channel/${channel.channelId}/videos`
-    ],
+    buildYtDlpArgs(
+      [
+        '--dump-json',
+        '--skip-download',
+        '--flat-playlist',
+        '--no-warnings',
+        '--playlist-end',
+        String(limit)
+      ],
+      `https://www.youtube.com/channel/${channel.channelId}/videos`,
+      youtubeCookiesPath
+    ),
     {
       cwd: repoRoot,
       maxBuffer: 50 * 1024 * 1024
@@ -191,7 +196,7 @@ async function loadChannelEntries(channel: ChannelConfig, limit: number): Promis
 async function readVideoMetadata(url: string): Promise<YtDlpMetadata> {
   const { stdout } = await execFileAsync(
     'yt-dlp',
-    ['--dump-single-json', '--skip-download', '--no-warnings', url],
+    buildYtDlpArgs(['--dump-single-json', '--skip-download', '--no-warnings'], url, youtubeCookiesPath),
     {
       cwd: repoRoot,
       maxBuffer: 20 * 1024 * 1024
