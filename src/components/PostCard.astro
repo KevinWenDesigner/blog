@@ -10,24 +10,24 @@ const { post } = Astro.props as Props;
 const dateLabel = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium' }).format(post.data.pubDate);
 ---
 
-<article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+<article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
   <div class="flex items-baseline justify-between gap-4">
-    <h2 class="text-lg font-semibold leading-snug">
+    <h2 class="text-lg font-semibold leading-snug dark:text-slate-100">
       <a class="hover:underline" href={`${import.meta.env.BASE_URL}blog/${post.id}/`}>{post.data.title}</a>
     </h2>
-    <time class="shrink-0 text-xs text-slate-500" datetime={post.data.pubDate.toISOString()}>
+    <time class="shrink-0 text-xs text-slate-500 dark:text-slate-500" datetime={post.data.pubDate.toISOString()}>
       {dateLabel}
     </time>
   </div>
 
-  <p class="mt-2 text-sm leading-relaxed text-slate-600">{post.data.description}</p>
+  <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{post.data.description}</p>
 
-  <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-600">
-    <a class="rounded bg-slate-100 px-2 py-1 hover:bg-slate-200" href={`${import.meta.env.BASE_URL}categories/${encodeURIComponent(post.data.category)}/`}>
+  <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-600 dark:text-slate-400">
+    <a class="rounded bg-slate-100 px-2 py-1 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700" href={`${import.meta.env.BASE_URL}categories/${encodeURIComponent(post.data.category)}/`}>
       {post.data.category}
     </a>
     {post.data.tags.map((tag) => (
-      <a class="rounded bg-slate-50 px-2 py-1 hover:bg-slate-100" href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}/`}>
+      <a class="rounded bg-slate-50 px-2 py-1 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-800" href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}/`}>
         #{tag}
       </a>
     ))}

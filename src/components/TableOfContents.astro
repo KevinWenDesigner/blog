@@ -14,12 +14,12 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && headi
 ---
 
 {visibleHeadings.length > 2 ? (
-  <aside class="mb-8 rounded-lg border border-slate-200 bg-slate-50 p-4">
-    <h2 class="text-sm font-semibold text-slate-900">目录</h2>
-    <ol class="mt-3 space-y-2 text-sm text-slate-600">
+  <aside class="mb-8 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/70">
+    <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">目录</h2>
+    <ol class="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
       {visibleHeadings.map((heading) => (
         <li class={heading.depth === 3 ? 'pl-4' : undefined}>
-          <a class="hover:text-slate-950 hover:underline" href={`#${heading.slug}`}>
+          <a class="hover:text-slate-950 hover:underline dark:hover:text-slate-100" href={`#${heading.slug}`}>
             {heading.text}
           </a>
         </li>

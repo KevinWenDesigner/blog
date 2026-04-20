@@ -11,68 +11,62 @@
   --pagefind-ui-font: ui-sans-serif, system-ui, sans-serif;
 }
 
+.dark {
+  --pagefind-ui-primary: #cbd5e1;
+  --pagefind-ui-text: #f1f5f9;
+  --pagefind-ui-background: #020617;
+  --pagefind-ui-border: #1e293b;
+  --pagefind-ui-tag: #0f172a;
+}
+
 .article-body {
-  color: #0f172a;
+  @apply text-slate-900 dark:text-slate-200;
 }
 
 .article-body h2 {
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 650;
-  letter-spacing: 0;
+  @apply mt-8 mb-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100;
 }
 
 .article-body h3 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 1.125rem;
-  font-weight: 650;
-  letter-spacing: 0;
+  @apply mt-6 mb-2 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100;
 }
 
 .article-body p,
 .article-body ul,
 .article-body ol,
 .article-body blockquote {
-  margin-top: 1rem;
+  @apply mt-4 leading-relaxed;
 }
 
 .article-body ul,
 .article-body ol {
-  padding-left: 1.5rem;
+  @apply pl-6;
 }
 
 .article-body ul {
-  list-style: disc;
+  @apply list-disc;
 }
 
 .article-body ol {
-  list-style: decimal;
+  @apply list-decimal;
 }
 
 .article-body a {
-  color: #334155;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  @apply text-slate-700 underline underline-offset-4 decoration-slate-300 hover:decoration-slate-500 dark:text-slate-300 dark:decoration-slate-700 dark:hover:decoration-slate-500;
 }
 
 .article-body pre {
-  margin-top: 1.25rem;
-  overflow-x: auto;
-  border-radius: 8px;
-  padding: 1rem;
+  @apply mt-5 overflow-x-auto rounded-lg p-4 bg-slate-900 dark:bg-slate-900/50 border border-slate-200/10;
 }
 
 .article-body :not(pre) > code {
-  border-radius: 4px;
-  background: #f1f5f9;
-  padding: 0.125rem 0.25rem;
-  font-size: 0.925em;
+  @apply rounded bg-slate-100 px-1 py-0.5 text-[0.9em] text-slate-800 dark:bg-slate-800 dark:text-slate-300;
 }
 
 .article-body blockquote {
-  border-left: 3px solid #cbd5e1;
-  padding-left: 1rem;
-  color: #475569;
+  @apply mt-6 border-l-4 border-slate-200 pl-4 italic text-slate-600 dark:border-slate-800 dark:text-slate-400;
+}
+
+.article-body img {
+  @apply rounded-lg my-8 mx-auto;
 }
