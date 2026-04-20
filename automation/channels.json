@@ -19,32 +19,83 @@
   ],
   "channels": [
     {
-      "channelId": "UCvijahEyGtvMpmMHBu4FS2w",
-      "label": "零度解说",
-      "defaultCategory": "读书",
+      "channelId": "UCsBjURrPoezykLs9EqgamOA",
+      "label": "Fireship",
+      "defaultCategory": "工程化",
       "includeKeywords": [
         "ai",
-        "google",
-        "gemini",
-        "openai",
-        "claude",
         "agent",
-        "搜索",
-        "模型",
-        "实测",
-        "体验"
+        "api",
+        "app",
+        "build",
+        "cloud",
+        "code",
+        "coding",
+        "css",
+        "database",
+        "developer",
+        "dev",
+        "docker",
+        "framework",
+        "github",
+        "html",
+        "javascript",
+        "llm",
+        "node",
+        "programming",
+        "python",
+        "react",
+        "rust",
+        "tech",
+        "typescript",
+        "web"
       ],
       "excludeKeywords": [
         "podcast",
-        "直播",
-        "live",
-        "新闻联播",
         "reaction",
+        "live",
+        "直播",
         "闲聊"
       ],
       "defaultTags": [
         "AI",
-        "Google",
+        "Developer",
+        "YouTube"
+      ]
+    },
+    {
+      "channelId": "UCR9j1jqqB5Rse69wjUnbYwA",
+      "label": "All About AI",
+      "defaultCategory": "教程",
+      "includeKeywords": [
+        "agent",
+        "ai",
+        "api",
+        "automation",
+        "chatgpt",
+        "claude",
+        "code",
+        "coding",
+        "gemini",
+        "gpt",
+        "llm",
+        "mcp",
+        "model",
+        "notebooklm",
+        "openai",
+        "rag",
+        "workflow"
+      ],
+      "excludeKeywords": [
+        "podcast",
+        "reaction",
+        "live",
+        "直播",
+        "闲聊"
+      ],
+      "defaultTags": [
+        "AI",
+        "Automation",
         "YouTube"
       ]
     }
