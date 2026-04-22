@@ -1,6 +1,10 @@
 name: Autoblog from YouTube
 
 on:
+  push:
+    branches: [blog-impl]
+    paths:
+      - automation/channels.json
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:
