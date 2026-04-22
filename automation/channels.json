@@ -106,6 +106,36 @@
         "Automation",
         "YouTube"
       ]
+    },
+    {
+      "channelId": "UCvijahEyGtvMpmMHBu4FS2w",
+      "label": "零度解说",
+      "defaultCategory": "读书",
+      "includeKeywords": [
+        "ai",
+        "google",
+        "gemini",
+        "openai",
+        "claude",
+        "agent",
+        "搜索",
+        "模型",
+        "实测",
+        "体验"
+      ],
+      "excludeKeywords": [
+        "podcast",
+        "reaction",
+        "live",
+        "直播",
+        "新闻联播",
+        "闲聊"
+      ],
+      "defaultTags": [
+        "AI",
+        "Google",
+        "YouTube"
+      ]
     }
   ]
 }
