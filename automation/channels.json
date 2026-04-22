@@ -136,6 +136,56 @@
         "Google",
         "YouTube"
       ]
+    },
+    {
+      "channelId": "UCSJbGtTlrDami-tDGPUV9-w",
+      "label": "Academind",
+      "defaultCategory": "教程",
+      "includeKeywords": [
+        "ai",
+        "agent",
+        "api",
+        "angular",
+        "backend",
+        "claude",
+        "code",
+        "codex",
+        "coding",
+        "course",
+        "css",
+        "database",
+        "docker",
+        "frontend",
+        "fullstack",
+        "guide",
+        "html",
+        "javascript",
+        "next.js",
+        "node",
+        "programming",
+        "react",
+        "security",
+        "supply chain",
+        "typescript",
+        "tutorial",
+        "vue",
+        "web",
+        "web development"
+      ],
+      "excludeKeywords": [
+        "podcast",
+        "reaction",
+        "live",
+        "livestream",
+        "shorts",
+        "直播",
+        "闲聊"
+      ],
+      "defaultTags": [
+        "Web Development",
+        "JavaScript",
+        "YouTube"
+      ]
     }
   ]
 }
