@@ -26,6 +26,10 @@ describe('yt-dlp helpers', () => {
       '--skip-download',
       '--no-warnings',
       '--ignore-no-formats-error',
+      '--write-subs',
+      '--write-auto-subs',
+      '--sub-langs',
+      'en.*,en,zh.*,zh-Hans,zh-Hant',
       '--cookies',
       '/tmp/cookies.txt',
       'https://youtu.be/abc'

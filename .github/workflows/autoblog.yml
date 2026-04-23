@@ -5,6 +5,9 @@ on:
     branches: [blog-impl]
     paths:
       - automation/channels.json
+      - .github/workflows/autoblog.yml
+      - scripts/autoblog.ts
+      - src/lib/autoblog/**
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:

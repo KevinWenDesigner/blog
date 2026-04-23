@@ -84,6 +84,7 @@
         "claude",
         "code",
         "coding",
+        "cybersecurity",
         "gemini",
         "gpt",
         "llm",
@@ -92,6 +93,7 @@
         "notebooklm",
         "openai",
         "rag",
+        "security",
         "workflow"
       ],
       "excludeKeywords": [
@@ -129,6 +131,9 @@
         "live",
         "直播",
         "新闻联播",
+        "vpn",
+        "激活码",
+        "限量领取",
         "闲聊"
       ],
       "defaultTags": [

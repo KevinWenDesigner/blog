@@ -140,6 +140,22 @@ export function matchChannelEntry(entry: FeedEntry, channel: ChannelConfig): boo
   return hasIncludeMatch && !hasExcludeMatch;
 }
 
+export function shouldUseYtDlpDiscoveryFallback(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const statusMatch = error.message.match(/:\s*(\d{3})\b/);
+  if (statusMatch) {
+    const status = Number(statusMatch[1]);
+    return status === 404 || status === 429 || (status >= 500 && status < 600);
+  }
+
+  return /\b(fetch failed|network|timeout|timed out|econnreset|etimedout|enotfound|eai_again)\b/i.test(
+    error.message
+  );
+}
+
 export function resolveCategory(text: string, defaultCategory: string, rules: CategoryRule[]): string {
   const normalized = text.toLowerCase();
   const matched = rules.find((rule) =>

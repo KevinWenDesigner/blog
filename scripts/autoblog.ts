@@ -10,6 +10,7 @@ import {
   parseYtDlpDiscoveryLines,
   parseYoutubeFeed,
   resolveCategory,
+  shouldUseYtDlpDiscoveryFallback,
   type ChannelConfig,
   type FeedEntry
 } from '../src/lib/autoblog/discovery';
@@ -56,6 +57,7 @@ type YtDlpMetadata = {
   webpage_url?: string;
   subtitles?: Record<string, Array<{ ext?: string; url: string }>>;
   automatic_captions?: Record<string, Array<{ ext?: string; url: string }>>;
+  requested_subtitles?: Record<string, { ext?: string; url: string } | null | undefined>;
 };
 
 const execFileAsync = promisify(execFile);
@@ -98,10 +100,6 @@ function normalizeYtDlpPublishedAt(
 function dateSortValue(input: string): number {
   const parsed = Date.parse(input);
   return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function shouldUseYtDlpDiscoveryFallback(error: unknown): boolean {
-  return error instanceof Error && /:\s*404\b/.test(error.message);
 }
 
 async function readMarkdownContents(dir: string): Promise<string[]> {
@@ -195,10 +193,10 @@ async function loadChannelEntries(channel: ChannelConfig, limit: number): Promis
   }
 }
 
-async function readVideoMetadata(url: string): Promise<YtDlpMetadata> {
+async function readVideoMetadata(url: string, cookiesPath?: string): Promise<YtDlpMetadata> {
   const { stdout } = await execFileAsync(
     'yt-dlp',
-    buildYtDlpMetadataArgs(url, youtubeCookiesPath),
+    buildYtDlpMetadataArgs(url, cookiesPath),
     {
       cwd: repoRoot,
       maxBuffer: 20 * 1024 * 1024
@@ -206,6 +204,23 @@ async function readVideoMetadata(url: string): Promise<YtDlpMetadata> {
   );
 
   return JSON.parse(stdout) as YtDlpMetadata;
+}
+
+async function readVideoMetadataAndSubtitle(url: string): Promise<{
+  metadata: YtDlpMetadata;
+  subtitle: ReturnType<typeof selectSubtitleTrack>;
+}> {
+  const primaryMetadata = await readVideoMetadata(url, youtubeCookiesPath);
+  const primarySubtitle = selectSubtitleTrack(primaryMetadata);
+  if (primarySubtitle || !youtubeCookiesPath?.trim()) {
+    return { metadata: primaryMetadata, subtitle: primarySubtitle };
+  }
+
+  const fallbackMetadata = await readVideoMetadata(url);
+  const fallbackSubtitle = selectSubtitleTrack(fallbackMetadata);
+  return fallbackSubtitle
+    ? { metadata: fallbackMetadata, subtitle: fallbackSubtitle }
+    : { metadata: primaryMetadata, subtitle: primarySubtitle };
 }
 
 async function ensureDirectory(path: string): Promise<void> {
@@ -314,15 +329,17 @@ async function main(): Promise<void> {
 
     for (const item of queue) {
       try {
-        const metadata = await readVideoMetadata(item.entry.url);
-        const subtitle = selectSubtitleTrack(metadata);
+        const { metadata, subtitle } = await readVideoMetadataAndSubtitle(item.entry.url);
         if (!subtitle) {
           report.skipped.push({
             videoId: item.entry.videoId,
             title: item.entry.title,
             channel: item.entry.channelName,
             url: item.entry.url,
-            reason: 'missing-subtitles'
+            reason: 'missing-subtitles',
+            details: youtubeCookiesPath?.trim()
+              ? 'yt-dlp returned no subtitle tracks with or without cookies'
+              : 'yt-dlp returned no subtitle tracks'
           });
           continue;
         }

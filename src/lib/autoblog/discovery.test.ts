@@ -5,6 +5,7 @@ import {
   parseYtDlpDiscoveryLines,
   parseYoutubeFeed,
   resolveCategory,
+  shouldUseYtDlpDiscoveryFallback,
   type ChannelConfig,
   type CategoryRule
 } from './discovery';
@@ -137,5 +138,30 @@ describe('autoblog discovery', () => {
 
     expect(resolveCategory('Production workflow guide', channel.defaultCategory, rules)).toBe('工程化');
     expect(resolveCategory('Undocumented release tricks', channel.defaultCategory, rules)).toBe('读书');
+  });
+
+  it('falls back to yt-dlp for missing, throttled, or transient YouTube feed failures', () => {
+    expect(
+      shouldUseYtDlpDiscoveryFallback(
+        new Error('Request failed for https://www.youtube.com/feeds/videos.xml?channel_id=UC123: 404')
+      )
+    ).toBe(true);
+    expect(
+      shouldUseYtDlpDiscoveryFallback(
+        new Error('Request failed for https://www.youtube.com/feeds/videos.xml?channel_id=UC123: 429')
+      )
+    ).toBe(true);
+    expect(
+      shouldUseYtDlpDiscoveryFallback(
+        new Error('Request failed for https://www.youtube.com/feeds/videos.xml?channel_id=UC123: 500')
+      )
+    ).toBe(true);
+    expect(shouldUseYtDlpDiscoveryFallback(new TypeError('fetch failed'))).toBe(true);
+    expect(
+      shouldUseYtDlpDiscoveryFallback(
+        new Error('Request failed for https://www.youtube.com/feeds/videos.xml?channel_id=UC123: 403')
+      )
+    ).toBe(false);
+    expect(shouldUseYtDlpDiscoveryFallback('not an error')).toBe(false);
   });
 });

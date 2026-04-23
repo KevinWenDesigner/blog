@@ -7,7 +7,16 @@ export function buildYtDlpArgs(baseArgs: string[], url: string, cookiesPath?: st
 
 export function buildYtDlpMetadataArgs(url: string, cookiesPath?: string): string[] {
   return buildYtDlpArgs(
-    ['--dump-single-json', '--skip-download', '--no-warnings', '--ignore-no-formats-error'],
+    [
+      '--dump-single-json',
+      '--skip-download',
+      '--no-warnings',
+      '--ignore-no-formats-error',
+      '--write-subs',
+      '--write-auto-subs',
+      '--sub-langs',
+      'en.*,en,zh.*,zh-Hans,zh-Hant'
+    ],
     url,
     cookiesPath
   );
