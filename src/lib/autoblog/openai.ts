@@ -147,20 +147,21 @@ export function buildAutoblogArticlePrompt({
   const clippedTranscript = transcript.slice(0, MAX_TRANSCRIPT_CHARACTERS);
 
   return [
-    '请根据以下 YouTube 视频信息和字幕，生成一篇适合发布到技术博客的中文结构化摘要。',
+    '请根据以下 YouTube 视频信息和可用内容，生成一篇适合发布到技术博客的中文结构化摘要。',
     '要求：',
     '- 只使用提供的内容，不要编造额外事实。',
+    '- 如果可用内容说明字幕不可用，只能基于标题和描述做保守摘要。',
     '- 风格务实、具体，避免宣传语。',
     '- title 和 description 必须适合作为博客文章标题与摘要。',
     '- keyPoints 保持 3 到 5 条，每条聚焦一个可复用观点。',
-    '- keyPoints 每条都必须包含 timestamp；若字幕中能明确定位时间点，填写 mm:ss，否则填写 null。',
+    '- keyPoints 每条都必须包含 timestamp；若可用内容中能明确定位真实视频时间点，填写 mm:ss，否则填写 null。',
     '',
     `视频标题：${metadata.title}`,
     `频道：${metadata.channel}`,
     `视频链接：${metadata.url}`,
     `视频描述：${metadata.description || '（无）'}`,
     '',
-    '字幕：',
+    '可用内容：',
     clippedTranscript
   ].join('\n');
 }

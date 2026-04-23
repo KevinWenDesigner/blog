@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildMetadataFallbackTranscript,
   normalizeSubtitleTranscript,
   normalizeVttTranscript,
   selectSubtitleTrack,
@@ -115,5 +116,19 @@ Ship the workflow with tests
   it('rejects transcripts that are too short to publish', () => {
     expect(transcriptLooksUsable('too short')).toBe(false);
     expect(transcriptLooksUsable('A'.repeat(900))).toBe(true);
+  });
+
+  it('builds a transparent metadata fallback transcript when captions are unavailable', () => {
+    const transcript = buildMetadataFallbackTranscript({
+      title: 'Claude Code desktop walkthrough',
+      channel: 'Academind',
+      url: 'https://www.youtube.com/watch?v=N9nU9oLZ30o',
+      description: 'A practical walkthrough of the new Claude Code desktop app features.'
+    });
+
+    expect(transcript).toContain('字幕不可用');
+    expect(transcript).toContain('视频标题：Claude Code desktop walkthrough');
+    expect(transcript).toContain('频道：Academind');
+    expect(transcript).toContain('A practical walkthrough');
   });
 });

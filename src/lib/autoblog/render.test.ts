@@ -69,4 +69,39 @@ body`
     expect(markdown).toContain('## 原视频');
     expect(markdown).toContain('- 平台：YouTube');
   });
+
+  it('marks articles generated from metadata when subtitles are unavailable', () => {
+    const markdown = buildAutoblogMarkdown({
+      fileDate: '2026-04-20',
+      category: '教程',
+      defaultTags: ['YouTube'],
+      article: {
+        title: 'Claude Code desktop walkthrough',
+        description: '一篇基于视频描述生成的保守摘要。',
+        tags: ['Claude Code'],
+        keywords: ['desktop', 'Claude'],
+        summary: '视频描述提到 Claude Code 桌面版新增了一些值得关注的功能。',
+        keyPoints: [
+          { heading: '桌面入口', detail: '描述重点是桌面应用的新功能。' },
+          { heading: '使用边界', detail: '没有字幕时只能保守提炼描述中出现的信息。' },
+          { heading: '原视频校验', detail: '关键细节仍然需要回到原视频确认。' }
+        ],
+        notableDetails: ['字幕不可用时不会伪装成字幕摘要。'],
+        actionAdvice: ['先打开原视频确认功能演示。']
+      },
+      source: {
+        platform: 'youtube',
+        videoId: 'N9nU9oLZ30o',
+        url: 'https://www.youtube.com/watch?v=N9nU9oLZ30o',
+        channel: 'Academind',
+        originalTitle: 'Key features of the NEW Claude Code desktop app you MUST know!',
+        publishedAt: '2026-04-23T00:00:00.000Z',
+        basis: 'metadata'
+      }
+    });
+
+    expect(markdown).toContain('basis: "metadata"');
+    expect(markdown).toContain('字幕不可用');
+    expect(markdown).toContain('标题：[Key features of the NEW Claude Code desktop app you MUST know!]');
+  });
 });

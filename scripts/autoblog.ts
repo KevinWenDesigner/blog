@@ -22,7 +22,12 @@ import {
   buildAutoblogSlug,
   extractExistingVideoIds
 } from '../src/lib/autoblog/render';
-import { normalizeSubtitleTranscript, selectSubtitleTrack, transcriptLooksUsable } from '../src/lib/autoblog/transcript';
+import {
+  buildMetadataFallbackTranscript,
+  normalizeSubtitleTranscript,
+  selectSubtitleTrack,
+  transcriptLooksUsable
+} from '../src/lib/autoblog/transcript';
 import { buildYtDlpArgs, buildYtDlpMetadataArgs } from '../src/lib/autoblog/ytDlp';
 
 type CandidateResult = {
@@ -44,6 +49,8 @@ type RunReport = {
   skipped: CandidateResult[];
   failed: CandidateResult[];
 };
+
+type TranscriptBasis = 'subtitles' | 'metadata';
 
 type YtDlpMetadata = {
   id: string;
@@ -330,22 +337,39 @@ async function main(): Promise<void> {
     for (const item of queue) {
       try {
         const { metadata, subtitle } = await readVideoMetadataAndSubtitle(item.entry.url);
+        let transcript: string;
+        let transcriptBasis: TranscriptBasis;
+
         if (!subtitle) {
-          report.skipped.push({
-            videoId: item.entry.videoId,
-            title: item.entry.title,
-            channel: item.entry.channelName,
-            url: item.entry.url,
-            reason: 'missing-subtitles',
-            details: youtubeCookiesPath?.trim()
-              ? 'yt-dlp returned no subtitle tracks with or without cookies'
-              : 'yt-dlp returned no subtitle tracks'
+          const fallbackTranscript = buildMetadataFallbackTranscript({
+            title: metadata.title || item.entry.title,
+            description: metadata.description ?? item.entry.description,
+            channel: metadata.channel ?? item.entry.channelName,
+            url: item.entry.url
           });
-          continue;
+
+          if (!transcriptLooksUsable(fallbackTranscript, 500)) {
+            report.skipped.push({
+              videoId: item.entry.videoId,
+              title: item.entry.title,
+              channel: item.entry.channelName,
+              url: item.entry.url,
+              reason: 'missing-subtitles',
+              details: youtubeCookiesPath?.trim()
+                ? 'yt-dlp returned no subtitle tracks with or without cookies, and metadata was too short'
+                : 'yt-dlp returned no subtitle tracks, and metadata was too short'
+            });
+            continue;
+          }
+
+          transcript = fallbackTranscript;
+          transcriptBasis = 'metadata';
+        } else {
+          const rawSubtitle = await fetchText(subtitle.url);
+          transcript = normalizeSubtitleTranscript(rawSubtitle, subtitle.ext);
+          transcriptBasis = 'subtitles';
         }
 
-        const rawSubtitle = await fetchText(subtitle.url);
-        const transcript = normalizeSubtitleTranscript(rawSubtitle, subtitle.ext);
         if (!transcriptLooksUsable(transcript)) {
           report.skipped.push({
             videoId: item.entry.videoId,
@@ -414,7 +438,8 @@ async function main(): Promise<void> {
             originalTitle: metadata.title,
             publishedAt:
               normalizeYtDlpPublishedAt(metadata) || item.entry.publishedAt || new Date().toISOString(),
-            thumbnail: metadata.thumbnail
+            thumbnail: metadata.thumbnail,
+            basis: transcriptBasis
           }
         });
 

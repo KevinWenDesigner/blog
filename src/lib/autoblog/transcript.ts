@@ -18,6 +18,13 @@ export type VideoMetadata = {
   requested_subtitles?: Record<string, SubtitleTrack | null | undefined>;
 };
 
+export type MetadataFallbackTranscriptInput = {
+  title: string;
+  description?: string;
+  channel?: string;
+  url?: string;
+};
+
 const LANGUAGE_PRIORITY = ['zh-hans', 'zh-cn', 'zh-hant', 'zh', 'en', 'en-orig', 'en-en', 'en-us', 'en-gb'];
 const ORIGINAL_AUTOMATIC_LANGUAGE_PRIORITY = ['en', 'en-orig', 'en-en', 'en-us', 'en-gb', 'zh-hans', 'zh-cn', 'zh-hant', 'zh'];
 const EXTENSION_PRIORITY = ['vtt', 'json3'];
@@ -210,6 +217,24 @@ export function normalizeSubtitleTranscript(raw: string, ext: string): string {
   }
 
   return normalizeVttTranscript(raw);
+}
+
+export function buildMetadataFallbackTranscript({
+  title,
+  description,
+  channel,
+  url
+}: MetadataFallbackTranscriptInput): string {
+  return [
+    '字幕不可用；以下内容来自公开视频标题、频道、链接和描述。请只做保守摘要，不要补充视频中未明确出现的细节。',
+    '',
+    `视频标题：${title.trim()}`,
+    channel?.trim() ? `频道：${channel.trim()}` : '',
+    url?.trim() ? `视频链接：${url.trim()}` : '',
+    description?.trim() ? `视频描述：\n${description.trim()}` : ''
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 export function transcriptLooksUsable(transcript: string, minimumLength = 800): boolean {

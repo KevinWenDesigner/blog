@@ -21,6 +21,7 @@ export type YoutubeSource = {
   originalTitle: string;
   publishedAt: string;
   thumbnail?: string;
+  basis?: 'subtitles' | 'metadata';
 };
 
 type BuildAutoblogMarkdownInput = {
@@ -84,6 +85,10 @@ export function buildAutoblogMarkdown({
 }: BuildAutoblogMarkdownInput): string {
   const tags = dedupeValues([...defaultTags, ...article.tags]);
   const keywords = dedupeValues(article.keywords);
+  const sourceNotice =
+    source.basis === 'metadata'
+      ? '本文由自动化流程在字幕不可用时基于公开视频标题、描述和元数据生成，适合快速判断是否值得打开原视频，建议结合原视频交叉阅读。'
+      : '本文由自动化流程基于公开视频字幕生成，适合快速浏览要点，建议结合原视频交叉阅读。';
   const keyPointSection = article.keyPoints
     .map((point) => {
       const heading = point.timestamp ? `${point.heading}（${point.timestamp}）` : point.heading;
@@ -113,9 +118,9 @@ source:
   channel: ${yamlScalar(source.channel)}
   originalTitle: ${yamlScalar(source.originalTitle)}
   publishedAt: ${yamlScalar(source.publishedAt)}
-${source.thumbnail ? `  thumbnail: ${yamlScalar(source.thumbnail)}\n` : ''}---
+${source.basis ? `  basis: ${yamlScalar(source.basis)}\n` : ''}${source.thumbnail ? `  thumbnail: ${yamlScalar(source.thumbnail)}\n` : ''}---
 
-> 来源说明：本文由自动化流程基于公开视频字幕生成，适合快速浏览要点，建议结合原视频交叉阅读。
+> 来源说明：${sourceNotice}
 
 ## 这期视频讲什么
 
