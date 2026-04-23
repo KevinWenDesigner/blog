@@ -337,18 +337,17 @@ async function main(): Promise<void> {
     for (const item of queue) {
       try {
         const { metadata, subtitle } = await readVideoMetadataAndSubtitle(item.entry.url);
+        const metadataFallbackTranscript = buildMetadataFallbackTranscript({
+          title: metadata.title || item.entry.title,
+          description: metadata.description ?? item.entry.description,
+          channel: metadata.channel ?? item.entry.channelName,
+          url: item.entry.url
+        });
         let transcript: string;
         let transcriptBasis: TranscriptBasis;
 
         if (!subtitle) {
-          const fallbackTranscript = buildMetadataFallbackTranscript({
-            title: metadata.title || item.entry.title,
-            description: metadata.description ?? item.entry.description,
-            channel: metadata.channel ?? item.entry.channelName,
-            url: item.entry.url
-          });
-
-          if (!transcriptLooksUsable(fallbackTranscript, 500)) {
+          if (!transcriptLooksUsable(metadataFallbackTranscript, 500)) {
             report.skipped.push({
               videoId: item.entry.videoId,
               title: item.entry.title,
@@ -362,23 +361,29 @@ async function main(): Promise<void> {
             continue;
           }
 
-          transcript = fallbackTranscript;
+          transcript = metadataFallbackTranscript;
           transcriptBasis = 'metadata';
         } else {
           const rawSubtitle = await fetchText(subtitle.url);
           transcript = normalizeSubtitleTranscript(rawSubtitle, subtitle.ext);
           transcriptBasis = 'subtitles';
-        }
 
-        if (!transcriptLooksUsable(transcript)) {
-          report.skipped.push({
-            videoId: item.entry.videoId,
-            title: item.entry.title,
-            channel: item.entry.channelName,
-            url: item.entry.url,
-            reason: 'subtitle-too-short'
-          });
-          continue;
+          if (!transcriptLooksUsable(transcript)) {
+            if (transcriptLooksUsable(metadataFallbackTranscript, 500)) {
+              transcript = metadataFallbackTranscript;
+              transcriptBasis = 'metadata';
+            } else {
+              report.skipped.push({
+                videoId: item.entry.videoId,
+                title: item.entry.title,
+                channel: item.entry.channelName,
+                url: item.entry.url,
+                reason: 'subtitle-too-short',
+                details: 'subtitle track was too short, and metadata was too short for fallback'
+              });
+              continue;
+            }
+          }
         }
 
         let article = null;

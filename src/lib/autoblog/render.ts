@@ -55,7 +55,7 @@ function dedupeValues(values: string[]): string[] {
 export function extractExistingVideoIds(contents: string[]): Set<string> {
   return new Set(
     contents
-      .map((content) => content.match(/^[ \t]*videoId:\s*(.+)$/m)?.[1]?.trim())
+      .map((content) => content.match(/^[ \t]*videoId:\s*(.+)$/m)?.[1]?.trim().replace(/^['"]|['"]$/g, ''))
       .filter((value): value is string => Boolean(value))
   );
 }

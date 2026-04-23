@@ -17,12 +17,19 @@ source:
 ---
 body`,
       `---
+title: Generated post
+source:
+  platform: youtube
+  videoId: "quoted123"
+---
+body`,
+      `---
 title: Manual post
 ---
 body`
     ]);
 
-    expect(ids).toEqual(new Set(['abc123xyz99']));
+    expect(ids).toEqual(new Set(['abc123xyz99', 'quoted123']));
   });
 
   it('builds a stable slug that falls back when the title has no latin characters', () => {
