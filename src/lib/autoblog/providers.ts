@@ -21,10 +21,7 @@ function normalizeProvider(value: string | undefined): ArticleGeneratorProvider 
   throw new Error(`Unsupported AUTOBLOG_LLM_PROVIDER: ${value}`);
 }
 
-export function resolveArticleGeneratorConfig(env: ProviderEnv): ArticleGeneratorConfig {
-  const explicitProvider = normalizeProvider(env.AUTOBLOG_LLM_PROVIDER);
-  const provider = explicitProvider ?? (env.GEMINI_API_KEY?.trim() ? 'gemini' : 'openai');
-
+function buildArticleGeneratorConfig(provider: ArticleGeneratorProvider, env: ProviderEnv): ArticleGeneratorConfig {
   if (provider === 'gemini') {
     const apiKey = env.GEMINI_API_KEY?.trim();
     if (!apiKey) {
@@ -48,4 +45,29 @@ export function resolveArticleGeneratorConfig(env: ProviderEnv): ArticleGenerato
     apiKey,
     model: env.AUTOBLOG_OPENAI_MODEL?.trim() || undefined
   };
+}
+
+function alternateProvider(provider: ArticleGeneratorProvider): ArticleGeneratorProvider {
+  return provider === 'gemini' ? 'openai' : 'gemini';
+}
+
+export function resolveArticleGeneratorConfig(env: ProviderEnv): ArticleGeneratorConfig {
+  const explicitProvider = normalizeProvider(env.AUTOBLOG_LLM_PROVIDER);
+  const provider = explicitProvider ?? (env.GEMINI_API_KEY?.trim() ? 'gemini' : 'openai');
+
+  return buildArticleGeneratorConfig(provider, env);
+}
+
+export function resolveArticleGeneratorConfigs(env: ProviderEnv): ArticleGeneratorConfig[] {
+  const primary = resolveArticleGeneratorConfig(env);
+  const attempts = [primary];
+
+  try {
+    const fallback = buildArticleGeneratorConfig(alternateProvider(primary.provider), env);
+    attempts.push(fallback);
+  } catch {
+    // No alternate provider key is configured. The primary provider error should remain visible.
+  }
+
+  return attempts;
 }

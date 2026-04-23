@@ -15,7 +15,7 @@ import {
 } from '../src/lib/autoblog/discovery';
 import { generateArticleWithGemini } from '../src/lib/autoblog/gemini';
 import { generateArticleWithOpenAI } from '../src/lib/autoblog/openai';
-import { resolveArticleGeneratorConfig } from '../src/lib/autoblog/providers';
+import { resolveArticleGeneratorConfigs } from '../src/lib/autoblog/providers';
 import {
   buildAutoblogMarkdown,
   buildAutoblogSlug,
@@ -213,8 +213,12 @@ async function ensureDirectory(path: string): Promise<void> {
 }
 
 function buildSummaryMarkdown(report: RunReport): string {
+  const formatResult = (item: CandidateResult): string => {
+    const result = item.reason ?? item.outputPath ?? '-';
+    return item.details ? `${result}: ${item.details}` : result;
+  };
   const formatRow = (item: CandidateResult): string =>
-    `| ${item.videoId} | ${item.channel} | ${item.title.replace(/\|/g, '\\|')} | ${item.reason ?? item.outputPath ?? '-'} |`;
+    `| ${item.videoId} | ${item.channel} | ${item.title.replace(/\|/g, '\\|')} | ${formatResult(item).replace(/\|/g, '\\|')} |`;
 
   const sections = [
     '# Autoblog Report',
@@ -242,6 +246,10 @@ function buildSummaryMarkdown(report: RunReport): string {
   return sections.join('\n');
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 async function main(): Promise<void> {
   const dryRun = isTruthy(process.env.AUTOBLOG_DRY_RUN);
   const maxVideos = Number.parseInt(process.env.AUTOBLOG_MAX_VIDEOS ?? '3', 10);
@@ -265,7 +273,7 @@ async function main(): Promise<void> {
       return;
     }
 
-    const articleGenerator = resolveArticleGeneratorConfig(process.env);
+    const articleGenerators = resolveArticleGeneratorConfigs(process.env);
     const existingVideoIds = extractExistingVideoIds(await readMarkdownContents(contentDir));
     const discoveryLookahead = Number.isFinite(maxVideos) ? Math.max(maxVideos * 3, 10) : 10;
     const channelEntries = await Promise.all(
@@ -334,29 +342,38 @@ async function main(): Promise<void> {
 
         let article = null;
         let lastError: unknown = null;
-        for (let attempt = 0; attempt < 2; attempt += 1) {
-          try {
-            const generateArticle =
-              articleGenerator.provider === 'gemini' ? generateArticleWithGemini : generateArticleWithOpenAI;
-            article = await generateArticle({
-              apiKey: articleGenerator.apiKey,
-              model: articleGenerator.model,
-              metadata: {
-                title: metadata.title,
-                description: metadata.description ?? item.entry.description,
-                channel: metadata.channel ?? item.entry.channelName,
-                url: item.entry.url
-              },
-              transcript
-            });
+        const generationErrors: string[] = [];
+        for (const articleGenerator of articleGenerators) {
+          for (let attempt = 0; attempt < 2; attempt += 1) {
+            try {
+              const generateArticle =
+                articleGenerator.provider === 'gemini' ? generateArticleWithGemini : generateArticleWithOpenAI;
+              article = await generateArticle({
+                apiKey: articleGenerator.apiKey,
+                model: articleGenerator.model,
+                metadata: {
+                  title: metadata.title,
+                  description: metadata.description ?? item.entry.description,
+                  channel: metadata.channel ?? item.entry.channelName,
+                  url: item.entry.url
+                },
+                transcript
+              });
+              break;
+            } catch (error) {
+              lastError = error;
+              generationErrors.push(`${articleGenerator.provider}: ${errorMessage(error)}`);
+            }
+          }
+
+          if (article) {
             break;
-          } catch (error) {
-            lastError = error;
           }
         }
 
         if (!article) {
-          throw lastError instanceof Error ? lastError : new Error('OpenAI generation failed');
+          const details = generationErrors.join(' | ');
+          throw new Error(details || errorMessage(lastError ?? new Error('Article generation failed')));
         }
 
         const category = resolveCategory(
@@ -411,8 +428,13 @@ async function main(): Promise<void> {
     }
   } finally {
     report.finishedAt = new Date().toISOString();
+    const summary = buildSummaryMarkdown(report);
     await writeFile(reportPath, JSON.stringify(report, null, 2), 'utf8');
-    await writeFile(summaryPath, buildSummaryMarkdown(report), 'utf8');
+    await writeFile(summaryPath, summary, 'utf8');
+    console.log(summary);
+    if (report.matchedCandidates > 0 && report.published.length === 0 && report.failed.length > 0) {
+      process.exitCode = 1;
+    }
   }
 }
 
