@@ -8,7 +8,8 @@ import {
   groupByTag,
   groupByYearMonth,
   isPublished,
-  sortByPubDateDesc
+  sortByPubDateDesc,
+  taxonomyPathSegment
 } from './posts';
 
 describe('posts helpers', () => {
@@ -25,6 +26,12 @@ describe('posts helpers', () => {
     const a: PostLike = { data: { pubDate: new Date('2026-01-01'), category: 'A', tags: [], draft: false } };
     const b: PostLike = { data: { pubDate: new Date('2026-02-01'), category: 'A', tags: [], draft: false } };
     expect(sortByPubDateDesc([a, b])[0]).toBe(b);
+  });
+
+  it('encodes taxonomy route segments that contain path separators', () => {
+    expect(taxonomyPathSegment('UI/UX')).toBe('UI%2FUX');
+    expect(taxonomyPathSegment('AI 工具')).toBe('AI 工具');
+    expect(taxonomyPathSegment('A/B/C')).toBe('A%2FB%2FC');
   });
 
   it('groups by category, tag, and year-month', () => {

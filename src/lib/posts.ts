@@ -28,6 +28,10 @@ export function yearMonthKey(date: Date): string {
   return `${year}-${month}`;
 }
 
+export function taxonomyPathSegment(value: string): string {
+  return value.replace(/\//g, '%2F');
+}
+
 export function groupByCategory<T extends Pick<PostLike, 'data'>>(posts: T[]): Map<string, T[]> {
   const map = new Map<string, T[]>();
   for (const post of posts) {

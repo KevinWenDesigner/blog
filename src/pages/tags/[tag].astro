@@ -2,14 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import PostCard from '../../components/PostCard.astro';
 import { getPublishedBlogPosts } from '../../lib/astroPosts';
-import { groupByTag, sortByPubDateDesc } from '../../lib/posts';
+import { groupByTag, sortByPubDateDesc, taxonomyPathSegment } from '../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getPublishedBlogPosts();
   const byTag = groupByTag(posts);
 
   return [...byTag.entries()].map(([tag, tagged]) => ({
-    params: { tag },
+    params: { tag: taxonomyPathSegment(tag) },
     props: { tag, posts: sortByPubDateDesc(tagged) }
   }));
 }
